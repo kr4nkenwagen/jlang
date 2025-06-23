@@ -163,3 +163,26 @@ void ref_dec(jl_object_t *obj)
     ref_free(obj);   
   }
 }
+
+void jl_array_set(jl_object_t *array, int index, jl_object_t *obj)
+{
+   
+  if(array->data.v_array->size == 0 || index >= array->data.v_array->size)
+  {
+    return;
+  }
+  if(array->data.v_array->elements[index] != NULL)
+  {
+    ref_dec(array->data.v_array->elements[index]);
+  }
+  array->data.v_array->elements[index] = obj;
+}
+
+jl_object_t *jl_array_get(jl_object_t *array, int index)
+{
+  if(array->data.v_array->size == 0 || index >= array->data.v_array->size)
+  {
+    return NULL;
+  }
+  return array->data.v_array->elements[index];
+}

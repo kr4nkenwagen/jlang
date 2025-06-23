@@ -34,6 +34,8 @@ jl_object_t *jl_new_array(size_t size);
 
 int jl_length(jl_object_t * obj);
 jl_object_t *jl_add(jl_object_t *a, jl_object_t *b);
+void jl_array_set(jl_object_t *array, int index, jl_object_t *obj);
+jl_object_t * jl_array_get(jl_object_t *array, int index); 
 
 void ref_free(jl_object_t *obj); 
 void ref_dec(jl_object_t *obj);
