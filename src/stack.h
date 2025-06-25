@@ -9,3 +9,5 @@ typedef struct stack {
 stack_t *stack_new(size_t capacity);
 void stack_push(stack_t *stack, void *obj);
 void *stack_pop(stack_t *stack);
+void stack_free(stack_t *stack); 
+void stack_remove_nulls(stack_t *stack);
