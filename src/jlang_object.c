@@ -9,6 +9,7 @@ jl_object_t *jl_new_int(int value)
   {
     return NULL;
   }
+  obj->is_marked = false;
   obj->type = INT;
   obj->data.v_int = value;
   obj->refcount = 1;
@@ -22,6 +23,7 @@ jl_object_t *jl_new_float(float value)
   {
     return NULL;
   }
+  obj->is_marked = false;
   obj->type = FLOAT;
   obj->data.v_float = value;
   obj->refcount = 1;
@@ -42,8 +44,10 @@ jl_object_t *jl_new_string(char *value)
     return NULL;
   }
   strcpy(obj->data.v_string, value);
+  obj->is_marked = false;
   obj->type = STRING;
   obj->refcount = 1;
+  return obj;
 }
 
 jl_object_t *new_array(size_t size)
@@ -56,16 +60,17 @@ jl_object_t *new_array(size_t size)
   obj->data.v_array->elements = malloc(sizeof(jl_object_t) * size);
   if(obj->data.v_array->elements == NULL)
   {
-    free(obj);
+    jl_object_free(obj);
     return NULL;
   }
+  obj->is_marked = false;
   obj->type = ARRAY; 
   obj->refcount = 1;
   obj->data.v_array->size = size;
   return obj;
 }
 
-int jl_length(jl_object_t *obj)
+size_t jl_length(jl_object_t *obj)
 {
   if(obj == NULL)
   {
@@ -118,10 +123,12 @@ jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
   {
     size_t a_size = strlen(a->data.v_string);
     size_t b_size = strlen(b->data.v_string);
-    char *str = calloc(a_size + b_size, sizeof(char));
-    strcat(str, a->data.v_string);
-    strcat(str, b->data.v_string);
-    return jl_new_string(str);
+    char *str = calloc(a_size + b_size + 1, sizeof(char));
+    strcpy(str, a->data.v_string);
+    strcpy(str + a_size, b->data.v_string);
+    jl_object_t * obj = jl_new_string(str);
+    free(str);
+    return obj;
   }
   return NULL;
 }
@@ -136,14 +143,13 @@ void ref_free(jl_object_t *obj)
   {
     case INT:
     case FLOAT:
-      free(obj);
+      jl_object_free(obj);
       break;
     case STRING:
-      free(obj->data.v_string);
-      free(obj);
+      jl_object_free(obj);
       break;
     case ARRAY:
-      for(int i = 0; i < obj->data.v_array->size; i++)
+      for(size_t i = 0; i < obj->data.v_array->size; i++)
       {
         ref_dec(obj->data.v_array->elements[i]);
       }
@@ -164,7 +170,16 @@ void ref_dec(jl_object_t *obj)
   }
 }
 
-void jl_array_set(jl_object_t *array, int index, jl_object_t *obj)
+void ref_inc(jl_object_t *obj)
+{
+  if(obj == NULL)
+  {
+    return;
+  }
+  obj->refcount++;
+}
+
+void jl_array_set(jl_object_t *array, size_t index, jl_object_t *obj)
 {
    
   if(array->data.v_array->size == 0 || index >= array->data.v_array->size)
@@ -178,11 +193,34 @@ void jl_array_set(jl_object_t *array, int index, jl_object_t *obj)
   array->data.v_array->elements[index] = obj;
 }
 
-jl_object_t *jl_array_get(jl_object_t *array, int index)
+jl_object_t *jl_array_get(jl_object_t *array, size_t index)
 {
   if(array->data.v_array->size == 0 || index >= array->data.v_array->size)
   {
     return NULL;
   }
   return array->data.v_array->elements[index];
+}
+
+void jl_object_free(jl_object_t *obj)
+{
+  if(obj == NULL)
+  {
+    return;
+  }
+  switch(obj->type)
+  {
+    case INT:
+    case FLOAT:
+      break;
+    case STRING:
+      free(obj->data.v_string);
+      break;
+    case ARRAY:
+      for(size_t i = 0; i < obj->data.v_array->size; i++)
+      {
+        jl_object_free(obj->data.v_array->elements[i]);
+      }
+  }
+  free(obj);
 }
