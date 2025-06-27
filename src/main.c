@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include "jlang_object.h"
+#include "scan.h"
 
 void main ()
 {
@@ -11,4 +13,12 @@ void main ()
   jl_object_t *floflo = jl_add(flo, flo);
   jl_object_t *numnum = jl_add(num, num);
   jl_object_t *strstr = jl_add(str, str);
+  
+  source_code_t *src = open_src("test.jonx"); 
+  if(src == NULL)
+  {
+    printf("ERROR");
+    return;
+  }
+  printf("%s", src->src);
 }
