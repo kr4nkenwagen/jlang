@@ -111,7 +111,7 @@ char *consume_string(source_code_t *src)
   {
     if(src->pointer + size >= src->size)
     {
-      printf("ERROR: string on line %i did not terminate", src->line);
+      printf("ERROR: string on line %i did not terminate\n", src->line);
       return NULL;
     }
   }
@@ -126,7 +126,7 @@ char *consume_string(source_code_t *src)
   return result;
 }
 
-bool IsNumber(char character)
+int is_number(char character)
 {
   switch (character) {
     case '0':
@@ -140,40 +140,48 @@ bool IsNumber(char character)
     case '8':
     case '9':
     case '.':
-      return true;
-    defualt:
-      return false;
+      return 1;
+    break;
+    default:
+      return 0;
     break;
   }
 }
 
 jl_object_t *consume_number(source_code_t *src)
 {
-  if(src == NULL || IsNumber(src->src[src->pointer]))
+  if(src == NULL)
   {
     return NULL;
   }
-  clear_buffer(src);
-  bool is_float = false;
-  while(IsNumber(advance(src)))
+  int is_float = false;
+  size_t size = 1;
+  char character = peek(src, 0);
+  while(is_number(character))
   {
     if(src->src[src->pointer] == '.')
     {
       if(is_float)
       {
-        printf("ERROR: Unexpected character '.' at line %i", src->line);
+        printf("ERROR: Unexpected character '.' at line %i\n", src->line);
         return NULL;
       }
-      is_float = true;
+      is_float = 1;
     }
+    character = peek(src, size++);
   }
+  size--;
+  char *number = malloc(sizeof(char) * size);
+  strncpy(number, src->src + src->pointer, size);
+  src->pointer += size;
+  printf("extracted number: %s size: %i \n", number, size);
   if(is_float)
   {
-    return jl_new_float(atof(src->buffer)) ;
+    return jl_new_float(atof(number)) ;
   }
   else 
   {
-    return jl_new_int(atoll(src->buffer));
+    return jl_new_int(atoll(number));
   }
   return NULL;
 }
@@ -206,7 +214,7 @@ jl_token_list_t *scan(char *file)
         jl_token_list_add(token_list,  jl_token_new(COMMA));
       break;
       case '.':
-        if(IsNumber(peek(src, 1)))
+        if(is_number(peek(src, 1)))
         {
           consume_number(src);
         }
@@ -232,7 +240,7 @@ jl_token_list_t *scan(char *file)
       break;
       case '\'':
       case '"':
-       printf("%s", consume_string(src));
+       printf("%s\n", consume_string(src));
       break; 
       case '0':
       case '1':
