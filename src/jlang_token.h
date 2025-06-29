@@ -17,13 +17,13 @@ typedef enum jl_token_type{
   EQUAL,
   GREATER,
   LESS,
+  COMMENT,
   //two char tokens
   BANG_EQUAL,
   EQUAL_EQUAL,
   GREATER_EQUAL,
   LESS_EQUAL,
   //literals
-  IDENTIFIER,
   STRING_WRAPPER,
   NUMBER,
   //keywords
