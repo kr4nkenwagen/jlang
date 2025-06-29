@@ -82,6 +82,49 @@ void clear_buffer(source_code_t *src)
   free(src->buffer);
 }
 
+void consume_comment(source_code_t *src)
+{
+  if(src == NULL || src->src[src->pointer] != '#')
+  {
+    return;
+  }
+  while(!src->is_at_end)
+  {
+    char c = advance(src);
+    if(c == '\n' || c == '#')
+    {
+      return;
+    }
+  }
+}
+
+char *consume_string(source_code_t *src)
+{
+  if(src == NULL || (src->src[src->pointer] != '\'' && src->src[src->pointer] != '"'))
+  {
+    return NULL;
+  }
+  char exit_char = src->src[src->pointer] == '"' ? '"' : '\'';
+  size_t size = 1;
+  while(peek(src, size++) != exit_char)
+  {
+    if(src->pointer + size >= src->size)
+    {
+      printf("ERROR: string on line %i did not terminate", src->line);
+      return NULL;
+    }
+  }
+  char *result = malloc(sizeof(char) * size - 1);
+  if(result == NULL)
+  {
+    return NULL;
+  }
+  strncpy(result, src->src + src->pointer + 1, size - 2);
+  result[size] = '\0';
+  src->pointer += size;
+  return result;
+}
+
 jl_token_list_t *scan(char *file)
 {
   source_code_t *src = open_src(file);
@@ -127,9 +170,16 @@ jl_token_list_t *scan(char *file)
       case '*':
         jl_token_list_add(token_list,  jl_token_new(STAR));
       break;
+      case '\'':
+      case '"':
+       printf("%s", consume_string(src));
+      break; 
       case '\n':
       case '\t':
       case ' ':
+      break;
+      case '#':
+        consume_comment(src);
       break;
       default:
        printf("ERROR: Unexpected character '%c' on line %i\n", src->src[src->pointer], src->line);
@@ -138,3 +188,4 @@ jl_token_list_t *scan(char *file)
   }
   return token_list;
 }
+
