@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "scan.h"
+#include "jlang_object.h"
 #include "jlang_token.h"
 
 
@@ -125,6 +126,58 @@ char *consume_string(source_code_t *src)
   return result;
 }
 
+bool IsNumber(char character)
+{
+  switch (character) {
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+    case '.':
+      return true;
+    defualt:
+      return false;
+    break;
+  }
+}
+
+jl_object_t *consume_number(source_code_t *src)
+{
+  if(src == NULL || IsNumber(src->src[src->pointer]))
+  {
+    return NULL;
+  }
+  clear_buffer(src);
+  bool is_float = false;
+  while(IsNumber(advance(src)))
+  {
+    if(src->src[src->pointer] == '.')
+    {
+      if(is_float)
+      {
+        printf("ERROR: Unexpected character '.' at line %i", src->line);
+        return NULL;
+      }
+      is_float = true;
+    }
+  }
+  if(is_float)
+  {
+    return jl_new_float(atof(src->buffer)) ;
+  }
+  else 
+  {
+    return jl_new_int(atoll(src->buffer));
+  }
+  return NULL;
+}
+
 jl_token_list_t *scan(char *file)
 {
   source_code_t *src = open_src(file);
@@ -153,7 +206,14 @@ jl_token_list_t *scan(char *file)
         jl_token_list_add(token_list,  jl_token_new(COMMA));
       break;
       case '.':
-        jl_token_list_add(token_list,  jl_token_new(DOT));
+        if(IsNumber(peek(src, 1)))
+        {
+          consume_number(src);
+        }
+        else 
+        {
+          jl_token_list_add(token_list,  jl_token_new(DOT));
+        }
       break;
       case '-':
         jl_token_list_add(token_list,  jl_token_new(MINUS));
@@ -174,6 +234,18 @@ jl_token_list_t *scan(char *file)
       case '"':
        printf("%s", consume_string(src));
       break; 
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        consume_number(src);
+      break;
       case '\n':
       case '\t':
       case ' ':
