@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 #include "scan.h"
@@ -262,7 +263,14 @@ jl_token_list_t *scan(char *file)
         consume_comment(src);
       break;
       default:
-       printf("ERROR: Unexpected character '%c' on line %i\n", src->src[src->pointer], src->line);
+        if(isalpha(src->src[src->pointer]))
+        {
+          printf("cought alpha");
+        }
+        else 
+        {
+          printf("ERROR: Unexpected character '%c' on line %i\n", src->src[src->pointer], src->line);
+        }
       break;
     }
   }
