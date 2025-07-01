@@ -20,9 +20,9 @@ typedef enum jl_token_type{
   COMMENT,
   //two char tokens
   BANG_EQUAL,
-  EQUAL_EQUAL,
   GREATER_EQUAL,
   LESS_EQUAL,
+  EQUAL_EQUAL,
   //literals
   STRING_WRAPPER,
   NUMBER,

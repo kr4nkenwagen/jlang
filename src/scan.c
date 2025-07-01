@@ -149,7 +149,7 @@ int is_number(char character)
   }
 }
 
-jl_object_t *consume_number(source_code_t *src)
+char *consume_number(source_code_t *src)
 {
   if(src == NULL)
   {
@@ -178,11 +178,11 @@ jl_object_t *consume_number(source_code_t *src)
   printf("extracted number: %s size: %i \n", number, size);
   if(is_float)
   {
-    return jl_new_float(atof(number)) ;
+    return number ;
   }
   else 
   {
-    return jl_new_int(atoll(number));
+    return number;
   }
   return NULL;
 }
@@ -217,7 +217,9 @@ jl_token_list_t *scan(char *file)
       case '.':
         if(is_number(peek(src, 1)))
         {
-          consume_number(src);
+          jl_token_t *token_number = jl_token_new(NUMBER);
+          token_number->literal = consume_number(src);
+          jl_token_list_add(token_list, token_number);
         }
         else 
         {
@@ -241,8 +243,53 @@ jl_token_list_t *scan(char *file)
       break;
       case '\'':
       case '"':
-       printf("%s\n", consume_string(src));
+        jl_token_t *token_string = jl_token_new(STRING);
+        token_string->literal = consume_string(src);
+        jl_token_list_add(token_list, token_string);
       break; 
+      case '!':
+       if(peek(src, 1) == '=')
+        {
+          jl_token_list_add(token_list, jl_token_new(BANG_EQUAL));
+          advance(src);
+        }
+        else 
+        {
+          jl_token_list_add(token_list, jl_token_new(BANG)); 
+        }
+      break;
+      case '=':
+        if(peek(src, 1) == '=')
+        {
+          jl_token_list_add(token_list, jl_token_new(EQUAL_EQUAL));
+          advance(src); 
+        }
+        else {
+          jl_token_list_add(token_list, jl_token_new(EQUAL));
+        }
+      break;
+      case '>':
+        if(peek(src, 1) == '=')
+        {
+          jl_token_list_add(token_list, jl_token_new(GREATER_EQUAL));
+          advance(src);
+        }
+        else 
+        {
+          jl_token_list_add(token_list, jl_token_new(GREATER));  
+        }
+      break;
+      case '<':
+        if(peek(src, 1) == '=')
+        {
+          jl_token_list_add(token_list, jl_token_new(LESS_EQUAL));
+          advance(src);
+        }
+        else 
+        {
+          jl_token_list_add(token_list, jl_token_new(LESS));
+        }
+      break;
       case '0':
       case '1':
       case '2':
@@ -253,7 +300,13 @@ jl_token_list_t *scan(char *file)
       case '7':
       case '8':
       case '9':
-        consume_number(src);
+        jl_token_t *token_number = jl_token_new(NUMBER);
+        token_number->literal = consume_number(src);
+        jl_token_list_add(token_list, token_number);
+      break;
+      case 'a':
+      case 'A':
+        
       break;
       case '\n':
       case '\t':
