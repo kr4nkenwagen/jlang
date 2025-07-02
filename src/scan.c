@@ -516,14 +516,7 @@ jl_token_list_t *scan(char *file)
         consume_comment(src);
       break;
       default:
-        if(isalpha(src->src[src->pointer]))
-        {
-          printf("cought alpha");
-        }
-        else 
-        {
           printf("[ERROR:%i:%i] Unexpected character '%c'\n", src->line, (src->pointer - src->line_start, src->src[src->pointer]));
-        }
       break;
     }
   }
