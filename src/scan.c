@@ -62,6 +62,7 @@ char advance(source_code_t *src)
   if(src->src[src->pointer] == '\n')
   {
     src->line++;
+    src->line_start = src->pointer + 1;
   }
   return src->src[src->pointer];
 }
@@ -173,18 +174,59 @@ char *consume_number(source_code_t *src)
   }
   size--;
   char *number = malloc(sizeof(char) * size);
+  if(number == NULL)
+  {
+    return NULL;
+  }
   strncpy(number, src->src + src->pointer, size);
   src->pointer += size;
   printf("extracted number: %s size: %i \n", number, size);
-  if(is_float)
+  return number;
+}
+
+char *consume_variable_name(source_code_t *src)
+{
+  if(src == NULL)
   {
-    return number ;
+    return NULL;
   }
-  else 
+  char character = peek(src, 0);
+  size_t size = 1;
+  while(isalpha(character) || character == '_')
   {
-    return number;
+    character = peek(src, size++);
   }
-  return NULL;
+  size--;
+  char *variable = malloc(sizeof(char) * size);
+  if(variable == NULL)
+  {
+    return NULL;
+  }
+  strncpy(variable, src->src + src->pointer, size);
+  src->pointer += size;
+  return variable;
+}
+
+int is_next_word_match(source_code_t *src, char * word)
+{
+  if (src == NULL)
+  {
+    return 0;
+  }
+  size_t size = strlen(word);
+  for(int i = 0; i < size; i++)
+  {
+    if(tolower(peek(src, i)) != tolower(word[i]))
+    {
+      return 0;
+    }
+  }
+  char after = peek(src, size);
+  if(after == '\n' || after == ' ' || after == '\t')
+  {
+    return 1;
+  }
+  return 0;
 }
 
 jl_token_list_t *scan(char *file)
@@ -306,8 +348,166 @@ jl_token_list_t *scan(char *file)
       break;
       case 'a':
       case 'A':
-        
-      break;
+        if(is_next_word_match(src, "and"))
+        {
+          jl_token_list_add(token_list, jl_token_new(AND));
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 'c':
+      case 'C':
+        if(is_next_word_match(src, "class"))
+        {
+          jl_token_list_add(token_list, jl_token_new(CLASS));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 'e':
+      case 'E':
+        if(is_next_word_match(src, "else"))
+        {
+          jl_token_list_add(token_list, jl_token_new(ELSE));
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 'f':
+      case 'F':
+        if(is_next_word_match(src, "for"))
+        {
+          jl_token_list_add(token_list, jl_token_new(FOR));
+          advance(src);
+          advance(src);
+          break;
+        }
+        else if(is_next_word_match(src, "false"))
+        {
+          jl_token_list_add(token_list, jl_token_new(FALSE));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+        else if(is_next_word_match(src, "function"))
+        {
+          jl_token_list_add(token_list, jl_token_new(FUNCTION));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 'i':
+      case 'I':
+        if(is_next_word_match(src, "if"))
+        {
+          jl_token_list_add(token_list, jl_token_new(IF));
+          advance(src);
+          break;
+        }
+      case 'n':
+      case 'N':
+        if(is_next_word_match(src, "null"))
+        {
+          jl_token_list_add(token_list, jl_token_new(NIL));
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 'o':
+      case 'O':
+        if(is_next_word_match(src, "or"))
+        {
+          jl_token_list_add(token_list, jl_token_new(OR));
+          advance(src);
+          break;
+        }
+      case 'p':
+      case 'P':
+        if(is_next_word_match(src, "print"))
+        {
+          jl_token_list_add(token_list, jl_token_new(PRINT));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 'r':
+      case 'R':
+        if(is_next_word_match(src, "return"))
+        {
+          jl_token_list_add(token_list, jl_token_new(RETURN));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 's':
+      case 'S':
+        if(is_next_word_match(src, "super"))
+        {
+          jl_token_list_add(token_list, jl_token_new(SUPER));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 't':
+      case 'T':
+        if(is_next_word_match(src, "this"))
+        {
+          jl_token_list_add(token_list, jl_token_new(THIS));
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+        else if(is_next_word_match(src, "true"))
+        {
+          jl_token_list_add(token_list, jl_token_new(TRUE));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
+      case 'v':
+      case 'V':
+        if(is_next_word_match(src, "var"));
+        {
+          jl_token_t *token = jl_token_new(VAR);
+          advance(src);
+          advance(src);
+          token->lexeme = consume_variable_name(src);
+          jl_token_list_add(token_list, token);
+          break;
+        }
+      case 'w':
+      case 'W':
+        if(is_next_word_match(src, "while"))
+        {
+          jl_token_list_add(token_list, jl_token_new(WHILE));
+          advance(src);
+          advance(src);
+          advance(src);
+          advance(src);
+          break;
+        }
       case '\n':
       case '\t':
       case ' ':
@@ -322,7 +522,7 @@ jl_token_list_t *scan(char *file)
         }
         else 
         {
-          printf("ERROR: Unexpected character '%c' on line %i\n", src->src[src->pointer], src->line);
+          printf("[ERROR:%i:%i] Unexpected character '%c'\n", src->line, (src->pointer - src->line_start, src->src[src->pointer]));
         }
       break;
     }

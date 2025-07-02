@@ -6,6 +6,7 @@ typedef struct source_code {
   size_t size;
   int pointer;
   int line;
+  int line_start;
   char *buffer;
   char *src;
 }source_code_t;
