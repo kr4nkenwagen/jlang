@@ -1,13 +1,20 @@
-odwadadsadwa
 "This is a string"
 ({*+-})
 'This is also a string'
 and
-
+for
+if
+  else
+    false
+    true
+    while
+      return
+      function
+      var
 AND
 123
 2
 1.321
-.123
-dasdasdada
-da#this is a comment#dsda
+.123 #number
+error
+#this is a comment#
