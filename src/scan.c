@@ -36,7 +36,7 @@ source_code_t *open_src(char *src)
   }
   free(src_line);
   src_code->is_at_end == false;
-  src_code->pointer = 0;
+  src_code->pointer = -1;
   src_code->line = 0;
   src_code->column = 0;
   return src_code;
@@ -53,15 +53,6 @@ char advance(source_code_t *src)
     src->is_at_end = true;
   }
   src->column++;
-  size_t buffer_len = src->buffer ? strlen(src->buffer) : 0;
-  char *new_buffer = realloc(src->buffer, buffer_len + 2);
-  if(new_buffer == NULL)
-  {
-    return 0;
-  }
-  new_buffer[buffer_len] = src->src[src->pointer];
-  new_buffer[buffer_len + 1] = '\0';
-  src->buffer = new_buffer;
   if(src->src[src->pointer] == '\n')
   {
     src->line++;
@@ -79,18 +70,9 @@ char peek(source_code_t *src, int distance)
   return src->src[src->pointer + distance];
 }
 
-void clear_buffer(source_code_t *src)
-{
-  if(src == NULL || src->buffer == NULL)
-  {
-    return;
-  }
-  free(src->buffer);
-}
-
 void consume_comment(source_code_t *src)
 {
-  if(src == NULL || src->src[src->pointer] != '#')
+  if(src == NULL || peek(src, 0)!= '#')
   {
     return;
   }
@@ -106,11 +88,11 @@ void consume_comment(source_code_t *src)
 
 char *consume_string(source_code_t *src)
 {
-  if(src == NULL || (src->src[src->pointer] != '\'' && src->src[src->pointer] != '"'))
+  if(src == NULL || (peek(src, 0)!= '\'' && peek(src, 0) != '"'))
   {
     return NULL;
   }
-  char exit_char = src->src[src->pointer] == '"' ? '"' : '\'';
+  char exit_char = peek(src, 0) == '"' ? '"' : '\'';
   size_t size = 1;
   while(peek(src, size++) != exit_char)
   {
@@ -239,9 +221,14 @@ int is_next_word_match(source_code_t *src, char *word)
   }
   return 0;
 }
+
 jl_token_t *consume_reserved_word(source_code_t *src)
 {
-  char character = src->src[src->pointer];
+  if(isalpha(peek(src, -1)))
+  {
+    return NULL;
+  }
+  char character = peek(src, 0);
   switch(character)
   {
     case 'a':
@@ -391,6 +378,7 @@ jl_token_t *consume_reserved_word(source_code_t *src)
   }
   return NULL;
 }
+
 jl_token_list_t *scan(char *file)
 {
   source_code_t *src = open_src(file);
@@ -508,7 +496,7 @@ jl_token_list_t *scan(char *file)
         token_number->literal = consume_number(src);
         jl_token_list_add(token_list, token_number);
       break;
-     case '\n':
+      case '\n':
       case '\t':
       case ' ':
       break;
@@ -516,15 +504,19 @@ jl_token_list_t *scan(char *file)
         consume_comment(src);
       break;
       default:
+        if(src->src[src->pointer] == 0)
+        {
+          break;
+        }
         jl_token_t *token = consume_reserved_word(src);
         if(token == NULL)
         {
-        printf("[ERROR:%i:%i] Unexpected character '%c'\n", src->line, src->column, src->src[src->pointer]);
+          printf("[ERROR:%i:%i] Unexpected character '%c'\n", src->line, src->column, src->src[src->pointer]);
           break;
         }
         jl_token_list_add(token_list, token);
     }
   }
+  jl_token_list_add(token_list, jl_token_new(END_OF_FILE));
   return token_list;
 }
-
