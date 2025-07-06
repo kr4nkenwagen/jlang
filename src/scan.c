@@ -23,8 +23,8 @@ source_code_t *open_src(char *src)
   fseek(file_ptr, 0L, SEEK_END);
   src_code->size = ftell(file_ptr);
   fseek(file_ptr, 0L, SEEK_SET);
-  src_code->src = malloc(sizeof(char) * src_code->size);
-  char *src_line= malloc(sizeof(char) * src_code->size);
+  src_code->src = calloc(sizeof(char), src_code->size);
+  char *src_line= calloc(sizeof(char), src_code->size);
   if(src_line == NULL)
   {
     free(file_ptr);
@@ -35,7 +35,7 @@ source_code_t *open_src(char *src)
     strcat(src_code->src, src_line);     
   }
   free(src_line);
-  src_code->is_at_end == false;
+  src_code->is_at_end == 0;
   src_code->pointer = -1;
   src_code->line = 0;
   src_code->column = 0;
@@ -44,13 +44,13 @@ source_code_t *open_src(char *src)
 
 char advance(source_code_t *src)
 {
-  if(src == NULL || src->is_at_end)
+  if(src == NULL || src->is_at_end == 1)
   {
     return 0; 
   }
   if(src->pointer++ == src->size)
   {
-    src->is_at_end = true;
+    src->is_at_end = 1;
   }
   src->column++;
   if(src->src[src->pointer] == '\n')
@@ -76,7 +76,7 @@ void consume_comment(source_code_t *src)
   {
     return;
   }
-  while(!src->is_at_end)
+  while(!src->is_at_end == 0)
   {
     char c = advance(src);
     if(c == '\n' || c == '#')
@@ -387,7 +387,7 @@ jl_token_list_t *scan(char *file)
     return NULL;
   }
   jl_token_list_t *token_list = jl_token_list_new();
-  while(!src->is_at_end)
+  while(!src->is_at_end == 0)
   {
     switch(advance(src))
     {

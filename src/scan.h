@@ -1,13 +1,11 @@
-#include <stdlib.h>
 #include "jlang_token.h"
 
 typedef struct source_code {
-  bool is_at_end;
+  int is_at_end;
   size_t size;
   int pointer;
   int line;
   int column;
-  char *buffer;
   char *src;
 }source_code_t;
 
