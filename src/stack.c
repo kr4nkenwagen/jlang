@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "stack.h"
 #include <stdlib.h>
 
@@ -27,7 +28,10 @@ void stack_push(stack_t *stack, void *obj)
   if(stack->count >= stack->capacity)
   {
     stack->capacity *= 2;
-    realloc(stack->data, sizeof(void *) * stack->capacity);
+    if(realloc(stack->data, sizeof(void *) * stack->capacity) == NULL)
+    {
+      printf("REPLACE ME WITH ERROR");
+    }
   }
   stack->data[stack->count++] = obj;
 }
