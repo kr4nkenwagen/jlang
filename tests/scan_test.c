@@ -30,6 +30,7 @@ void advance_test()
   src->pointer = 207;
   advance(src);
   CU_ASSERT(src->is_at_end == 1);
+  CU_ASSERT(advance(src) == 0);
   free(src);
 }
 

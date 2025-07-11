@@ -10,6 +10,7 @@ jl_token_list_t *jl_token_list_new()
   }
   list->size = 8;
   list->count = 0;
+  list->index = 0;
   list->list = malloc(sizeof(jl_token_t *) * list->size);
   if(list->list == NULL)
   {
@@ -36,6 +37,24 @@ void jl_token_list_add(jl_token_list_t *list, jl_token_t *token)
     memcpy(new_list, list->list, sizeof(jl_token_t *) * (list->size / 2));
     list->list[list->count++] = token;
   }
+}
+
+jl_token_t *jl_token_list_advance(jl_token_list_t *list)
+{
+  if(list->count == list->index)
+  {
+    return NULL;
+  }
+  return list->list[++list->index];
+}
+
+jl_token_t *jl_token_list_peek(jl_token_list_t *list, int distance)
+{
+  if(list->index + distance >= list->count)
+  {
+    return NULL;
+  }
+  return list->list[list->index + distance];
 }
 
 jl_token_t *jl_token_new(jl_token_type_t type)
