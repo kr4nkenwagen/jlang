@@ -3,6 +3,7 @@
 #include "jlang_token.h"
 #include "scan.h"
 #include "parse.h"
+#include "repl.h"
 
 void main ()
 {
@@ -16,7 +17,8 @@ void main ()
   jl_object_t *numnum = jl_add(num, num);
   jl_object_t *strstr = jl_add(str, str);
   
-  jl_token_list_t * tokens = scan("test.jonx");
+  jl_token_list_t * tokens = scan(open_src("test.jonx"));
 
-  tokens = parse(tokens);
+  //tokens = parse(tokens);
+  repl();
 }

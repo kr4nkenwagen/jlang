@@ -8,6 +8,20 @@
 #include "jlang_error.h"
 
 
+source_code_t *new_source_code()
+{
+  source_code_t *src = malloc(sizeof(source_code_t));
+  if(src == NULL)
+  {
+    return NULL;
+  }
+  src->is_at_end = 0;
+  src->pointer = -1;
+  src->line = 0;
+  src->column = 0;
+  return src;
+}
+
 source_code_t *open_src(char *src)
 {
   FILE *file_ptr = fopen(src, "r");
@@ -15,7 +29,7 @@ source_code_t *open_src(char *src)
   {
     return NULL;
   }
-  source_code_t *src_code = malloc(sizeof(source_code_t));
+  source_code_t *src_code = new_source_code(); 
   if(src_code == NULL)
   {
     return NULL;
@@ -35,11 +49,21 @@ source_code_t *open_src(char *src)
     strcat(src_code->src, src_line);     
   }
   free(src_line);
-  src_code->is_at_end == 0;
-  src_code->pointer = -1;
-  src_code->line = 0;
-  src_code->column = 0;
   return src_code;
+}
+
+source_code_t *from_repl_line(char *line)
+{
+  if(line == NULL)
+  {
+    return NULL;
+  }
+  source_code_t *src = new_source_code();
+  {
+    return NULL;
+  }
+  src->size = strlen(line); 
+  return src;
 }
 
 char advance(source_code_t *src)
@@ -379,9 +403,8 @@ jl_token_t *consume_reserved_word(source_code_t *src)
   return NULL;
 }
 
-jl_token_list_t *scan(char *file)
+jl_token_list_t *scan(source_code_t *src)
 {
-  source_code_t *src = open_src(file);
   if(src == NULL)
   {
     return NULL;
