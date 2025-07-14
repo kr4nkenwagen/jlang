@@ -1,4 +1,5 @@
 #include "jlang_object.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
 
@@ -37,6 +38,7 @@ jl_object_t *jl_new_string(char *value)
   {
     return NULL;
   }
+  printf("%s\n", value);
   size_t size = strlen(value);
   obj->data.v_string = calloc(size, sizeof(char));
   if(obj->data.v_string == NULL)

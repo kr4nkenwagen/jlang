@@ -63,6 +63,8 @@ source_code_t *from_repl_line(char *line)
     return NULL;
   }
   src->size = strlen(line); 
+  src->src = malloc(src->size + 1);
+  memcpy(src->src, line, src->size);
   return src;
 }
 
@@ -133,6 +135,7 @@ char *consume_string(source_code_t *src)
   }
   strncpy(result, src->src + src->pointer + 1, size - 2);
   result[size] = '\0';
+  printf("%s\n", result);
   for(int i = 0; i < size; i++)
   {
     advance(src);
@@ -407,10 +410,11 @@ jl_token_list_t *scan(source_code_t *src)
 {
   if(src == NULL)
   {
+    printf("src is null");
     return NULL;
   }
   jl_token_list_t *token_list = jl_token_list_new();
-  while(!src->is_at_end == 0)
+  while(src->is_at_end == 0)
   {
     switch(advance(src))
     {

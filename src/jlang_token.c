@@ -29,19 +29,21 @@ void jl_token_list_add(jl_token_list_t *list, jl_token_t *token)
   if(list->count == list->size)
   {
     list->size *= 2;
-    jl_token_t *new_list = malloc(sizeof(jl_token_t *) * list->size);
+    jl_token_t **new_list = malloc(sizeof(jl_token_t **) * list->size);
     if(new_list == NULL)
     {
       return;
     }
-    memcpy(new_list, list->list, sizeof(jl_token_t *) * (list->size / 2));
-    list->list[list->count++] = token;
+    memcpy(new_list, list->list, sizeof(jl_token_t **) * (list->size / 2));
+    free(list->list);
+    list->list = new_list;
   }
+  list->list[list->count++] = token;
 }
 
 jl_token_t *jl_token_list_advance(jl_token_list_t *list)
 {
-  if(list->count == list->index)
+  if(list->index >= list->count - 1)
   {
     return NULL;
   }
