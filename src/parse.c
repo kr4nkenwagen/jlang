@@ -69,6 +69,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   {
     return NULL;
   } 
+  jl_syntax_t *syntax = new_syntax();
   switch(token->type)
   {
     case STRING:
@@ -77,13 +78,19 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
     case NUMBER:
       return parse_number(tokens);
     break;
+    case FALSE:
+    case TRUE:
+    case NIL:
+      syntax->token = token;
+      return syntax;
+    break;
     case LEFT_PAREN:
       if(jl_token_list_advance(tokens) == NULL)
       {
         printf("End of tokens?\n");
         return NULL;
       }
-      jl_syntax_t *syntax = parse_expression(tokens);
+      syntax = parse_expression(tokens);
       jl_token_t *token = jl_token_list_peek(tokens, 0);
       if(token == NULL || token->type != RIGHT_PAREN)
       {
