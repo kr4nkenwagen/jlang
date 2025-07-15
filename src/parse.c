@@ -12,7 +12,7 @@ jl_syntax_t *new_syntax()
   jl_syntax_t * syntax = malloc(sizeof(jl_syntax_t));
   if(syntax == NULL)
   {
-    printf("error creating syntax node");
+    printf("error creating syntax node\n");
     return NULL;
   }
   memset(syntax, 0, sizeof(jl_syntax_t));
@@ -30,7 +30,7 @@ jl_syntax_t *parse_string(jl_token_list_t *tokens)
   if(syntax->token == NULL)
   {
     free(syntax);
-    printf("end of tokens?");
+    printf("end of tokens?\n");
     return NULL;
   }
   syntax->value = jl_new_string(syntax->token->literal);
@@ -48,7 +48,7 @@ jl_syntax_t *parse_number(jl_token_list_t *tokens)
   if(syntax->token == NULL)
   {
     free(syntax);
-    printf("end of tokens?");
+    printf("end of tokens?\n");
     return NULL;
   }
   if(strchr(syntax->token->literal, '.') != NULL)
@@ -72,7 +72,6 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   switch(token->type)
   {
     case STRING:
-      printf("%i\n", token->type);
       return parse_string(tokens);
     break;
     case NUMBER:
@@ -81,14 +80,14 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
     case LEFT_PAREN:
       if(jl_token_list_advance(tokens) == NULL)
       {
-        printf("End of tokens?");
+        printf("End of tokens?\n");
         return NULL;
       }
       jl_syntax_t *syntax = parse_expression(tokens);
       jl_token_t *token = jl_token_list_peek(tokens, 0);
       if(token == NULL || token->type != RIGHT_PAREN)
       {
-        printf("ERROR: Unexpected token. expected ')'");
+        printf("ERROR: Unexpected token. expected ')'\n");
       }
       jl_token_list_advance(tokens);
       return syntax;
@@ -108,7 +107,7 @@ jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
     if(op->token == NULL)
     {
       free(op);
-      printf("end of tokens?");
+      printf("end of tokens?\n");
       return NULL;
     }
     op->left = left;
@@ -133,7 +132,7 @@ jl_syntax_t *parse_additive(jl_token_list_t * tokens)
     if(op->token == NULL)
     {
       free(op);
-      printf("end of tokens?");
+      printf("end of tokens?\n");
       return NULL;
     }
     op->left = left;

@@ -4,6 +4,8 @@
 #include "parse.h"
 #include "info.h"
 #include "jlang_token.h"
+#include "jlang_syntax.h"
+#include "jlang_program.h"
 
 void repl()
 {
@@ -46,7 +48,8 @@ void repl()
     {
       return;
     }
-
-    parse(scan(from_repl_line(input)));
+    source_code_t *src = from_repl_line(input);
+    jl_token_list_t *tokens = scan(src);
+    jl_program_t *program = parse(tokens);
   }
 }
