@@ -73,9 +73,11 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   switch(token->type)
   {
     case STRING:
+      free(syntax);
       return parse_string(tokens);
     break;
     case NUMBER:
+      free(syntax);
       return parse_number(tokens);
     break;
     case FALSE:
@@ -100,6 +102,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       return syntax;
     break;
   }
+  free(syntax);
   return NULL;
 }
 
