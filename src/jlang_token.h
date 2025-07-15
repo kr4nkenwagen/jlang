@@ -19,6 +19,7 @@ typedef enum jl_token_type{
   LESS,
   COMMENT,
   MODULUS,
+  TERMINATOR,
   //two char tokens
   BANG_EQUAL,
   GREATER_EQUAL,

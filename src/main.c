@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "jlang_source_code.h"
 #include "jlang_object.h"
 #include "jlang_token.h"
 #include "jlang_program.h"
@@ -18,8 +19,8 @@ void main ()
   jl_object_t *numnum = jl_add(num, num);
   jl_object_t *strstr = jl_add(str, str);
   
-  jl_token_list_t *tokens = scan(open_src("test.jonx"));
+  //jl_token_list_t *tokens = scan(jl_source_code_from_file("test.jonx"));
 
-  jl_program_t *syntax = parse(tokens);
+  //jl_program_t *syntax = parse(tokens);
   repl();
 }

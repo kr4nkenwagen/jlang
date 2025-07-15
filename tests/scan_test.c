@@ -16,21 +16,21 @@ void open_src_test()
   free(src);
 }
 
-void advance_test()
+void jl_source_code_advance_test()
 {
   source_code_t *src = open_src("tests/test.jonx");
   CU_ASSERT(src != NULL);
   for(int i = 0; i < 26; i++)
   {
-    CU_ASSERT(advance(src) != 0);
+    CU_ASSERT(jl_source_code_advance(src) != 0);
   }
   CU_ASSERT(src->pointer == 25);
   CU_ASSERT(src->line == 1);
   CU_ASSERT(src->column == 7);
   src->pointer = 207;
-  advance(src);
+  jl_source_code_advance(src);
   CU_ASSERT(src->is_at_end == 1);
-  CU_ASSERT(advance(src) == 0);
+  CU_ASSERT(jl_source_code_advance(src) == 0);
   free(src);
 }
 

@@ -18,6 +18,10 @@ jl_program_t *jl_new_program()
 
 void jl_program_add(jl_program_t *program, jl_syntax_t *statement)
 {
+  if(statement == NULL)
+  {
+    return;
+  }
   program->statements[program->count++] = statement;
   if(program->count == program->size)
   {

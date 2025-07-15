@@ -5,108 +5,18 @@
 #include "scan.h"
 #include "jlang_object.h"
 #include "jlang_token.h"
+#include "jlang_source_code.h"
 #include "jlang_error.h"
 
-
-source_code_t *new_source_code()
+void consume_comment(jl_source_code_t *src)
 {
-  source_code_t *src = malloc(sizeof(source_code_t));
-  if(src == NULL)
-  {
-    return NULL;
-  }
-  src->is_at_end = 0;
-  src->pointer = -1;
-  src->line = 0;
-  src->column = 0;
-  return src;
-}
-
-source_code_t *open_src(char *src)
-{
-  FILE *file_ptr = fopen(src, "r");
-  if(file_ptr == NULL)
-  {
-    return NULL;
-  }
-  source_code_t *src_code = new_source_code(); 
-  if(src_code == NULL)
-  {
-    return NULL;
-  }
-  fseek(file_ptr, 0L, SEEK_END);
-  src_code->size = ftell(file_ptr);
-  fseek(file_ptr, 0L, SEEK_SET);
-  src_code->src = calloc(sizeof(char), src_code->size);
-  char *src_line= calloc(sizeof(char), src_code->size);
-  if(src_line == NULL)
-  {
-    free(file_ptr);
-    return NULL;
-  }
-  while(fgets(src_line, src_code->size, file_ptr))
-  {
-    strcat(src_code->src, src_line);     
-  }
-  free(src_line);
-  return src_code;
-}
-
-source_code_t *from_repl_line(char *line)
-{
-  if(line == NULL)
-  {
-    return NULL;
-  }
-  source_code_t *src = new_source_code();
-  if(src == NULL)
-  {
-    return NULL;
-  }
-  src->size = strlen(line); 
-  src->src = malloc(src->size + 1);
-  memcpy(src->src, line, src->size);
-  src->src[src->size] = '\0';
-  return src;
-}
-
-char advance(source_code_t *src)
-{
-  if(src == NULL || src->is_at_end == 1)
-  {
-    return 0; 
-  }
-  if(src->pointer++ == src->size)
-  {
-    src->is_at_end = 1;
-  }
-  src->column++;
-  if(src->src[src->pointer] == '\n')
-  {
-    src->line++;
-    src->column = 0;
-  }
-  return src->src[src->pointer];
-}
-
-char peek(source_code_t *src, int distance)
-{
-  if(src == NULL || src->pointer + distance >= src->size)
-  {
-    return 0;
-  }
-  return src->src[src->pointer + distance];
-}
-
-void consume_comment(source_code_t *src)
-{
-  if(src == NULL || peek(src, 0)!= '#')
+  if(src == NULL || jl_source_code_peek(src, 0)!= '#')
   {
     return;
   }
   while(!src->is_at_end == 0)
   {
-    char c = advance(src);
+    char c = jl_source_code_advance(src);
     if(c == '\n' || c == '#')
     {
       return;
@@ -114,15 +24,15 @@ void consume_comment(source_code_t *src)
   }
 }
 
-char *consume_string(source_code_t *src)
+char *consume_string(jl_source_code_t *src)
 {
-  if(src == NULL || (peek(src, 0)!= '\'' && peek(src, 0) != '"'))
+  if(src == NULL || (jl_source_code_peek(src, 0)!= '\'' && jl_source_code_peek(src, 0) != '"'))
   {
     return NULL;
   }
-  char exit_char = peek(src, 0) == '"' ? '"' : '\'';
+  char exit_char = jl_source_code_peek(src, 0) == '"' ? '"' : '\'';
   size_t size = 1;
-  while(peek(src, size++) != exit_char)
+  while(jl_source_code_peek(src, size++) != exit_char)
   {
     if(src->pointer + size >= src->size)
     {
@@ -139,7 +49,7 @@ char *consume_string(source_code_t *src)
   result[size] = '\0';
   for(int i = 0; i < size; i++)
   {
-    advance(src);
+    jl_source_code_advance(src);
   }
   return result;
 }
@@ -166,7 +76,7 @@ int is_number(char character)
   }
 }
 
-char *consume_number(source_code_t *src)
+char *consume_number(jl_source_code_t *src)
 {
   if(src == NULL)
   {
@@ -174,7 +84,7 @@ char *consume_number(source_code_t *src)
   }
   int is_float = 0;
   size_t size = 1;
-  char character = peek(src, 0);
+  char character = jl_source_code_peek(src, 0);
   while(is_number(character))
   {
     if(character == '.')
@@ -186,7 +96,7 @@ char *consume_number(source_code_t *src)
       }
       is_float = 1;
     }
-    character = peek(src, size++);
+    character = jl_source_code_peek(src, size++);
   }
   size--;
   char *number = malloc(sizeof(char) * size);
@@ -197,22 +107,22 @@ char *consume_number(source_code_t *src)
   strncpy(number, src->src + src->pointer, size);
   for(int i = 0; i < size; i++)
   {
-    advance(src);
+    jl_source_code_advance(src);
   }
   return number;
 }
 
-char *consume_variable_name(source_code_t *src)
+char *consume_variable_name(jl_source_code_t *src)
 {
   if(src == NULL)
   {
     return NULL;
   }
-  char character = peek(src, 0);
+  char character = jl_source_code_peek(src, 0);
   size_t size = 1;
   while(isalpha(character) || character == '_')
   {
-    character = peek(src, size++);
+    character = jl_source_code_peek(src, size++);
   }
   size--;
   char *variable = malloc(sizeof(char) * size);
@@ -223,12 +133,12 @@ char *consume_variable_name(source_code_t *src)
   strncpy(variable, src->src + src->pointer, size);
   for(int i = 0; i < size; i++)
   {
-    advance(src);
+    jl_source_code_advance(src);
   }
   return variable;
 }
 
-int is_next_word_match(source_code_t *src, char *word)
+int is_next_word_match(jl_source_code_t *src, char *word)
 {
   if (src == NULL)
   {
@@ -237,12 +147,12 @@ int is_next_word_match(source_code_t *src, char *word)
   size_t size = strlen(word);
   for(int i = 0; i < size; i++)
   {
-    if(tolower(peek(src, i)) != tolower(word[i]))
+    if(tolower(jl_source_code_peek(src, i)) != tolower(word[i]))
     {
       return 0;
     }
   }
-  char after = peek(src, size);
+  char after = jl_source_code_peek(src, size);
   if(after == '\n' || after == ' ' || after == '\t')
   {
     return 1;
@@ -250,137 +160,114 @@ int is_next_word_match(source_code_t *src, char *word)
   return 0;
 }
 
-jl_token_t *consume_reserved_word(source_code_t *src)
+void consume_word(jl_source_code_t * src)
 {
-  if(isalpha(peek(src, -1)))
+  char x;
+  do
+  {
+    x = jl_source_code_advance(src);
+  }while(x != '\0' && x != '\n' && x != ' ' );
+}
+
+jl_token_t *consume_reserved_word(jl_source_code_t *src)
+{
+  if(isalpha(jl_source_code_peek(src, -1)))
   {
     return NULL;
   }
-  char character = peek(src, 0);
+  char character = jl_source_code_peek(src, 0);
   switch(character)
   {
     case 'a':
     case 'A':
     if(is_next_word_match(src, "and"))
     {
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(AND);
     }
   case 'c':
   case 'C':
     if(is_next_word_match(src, "class"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(CLASS);
     }
   case 'e':
   case 'E':
     if(is_next_word_match(src, "else"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(ELSE);
     }
   case 'f':
   case 'F':
     if(is_next_word_match(src, "for"))
     {
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(FOR);
     }
     else if(is_next_word_match(src, "false"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(FALSE);
     }
     else if(is_next_word_match(src, "function"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(FUNCTION);
     }
   case 'i':
   case 'I':
     if(is_next_word_match(src, "if"))
     {
-      advance(src);
+      consume_word(src);
       return jl_token_new(IF);
     }
   case 'n':
   case 'N':
     if(is_next_word_match(src, "null"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(NIL);
     }
   case 'o':
   case 'O':
     if(is_next_word_match(src, "or"))
     {
-      advance(src);
+      consume_word(src);
       return jl_token_new(OR);
     }
   case 'p':
   case 'P':
     if(is_next_word_match(src, "print"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(PRINT);
     }
   case 'r':
   case 'R':
     if(is_next_word_match(src, "return"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(RETURN);
     }
   case 's':
   case 'S':
     if(is_next_word_match(src, "super"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(SUPER);
     }
   case 't':
   case 'T':
     if(is_next_word_match(src, "this"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(THIS);
     }
     else if(is_next_word_match(src, "true"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(TRUE);
     }
   case 'v':
@@ -388,8 +275,7 @@ jl_token_t *consume_reserved_word(source_code_t *src)
     if(is_next_word_match(src, "var"))
     {
       jl_token_t *token = jl_token_new(VAR);
-      advance(src);
-      advance(src);
+      consume_word(src);
       token->lexeme = consume_variable_name(src);
       return token;
     }
@@ -397,17 +283,14 @@ jl_token_t *consume_reserved_word(source_code_t *src)
   case 'W':
     if(is_next_word_match(src, "while"))
     {
-      advance(src);
-      advance(src);
-      advance(src);
-      advance(src);
+      consume_word(src);
       return jl_token_new(WHILE);
     }
   }
   return NULL;
 }
 
-jl_token_list_t *scan(source_code_t *src)
+jl_token_list_t *scan(jl_source_code_t *src)
 {
   if(src == NULL)
   {
@@ -417,7 +300,7 @@ jl_token_list_t *scan(source_code_t *src)
   jl_token_list_t *token_list = jl_token_list_new();
   while(src->is_at_end == 0)
   {
-    switch(advance(src))
+    switch(jl_source_code_advance(src))
     {
       case '(':
         jl_token_list_add(token_list,  jl_token_new(LEFT_PAREN));
@@ -435,7 +318,7 @@ jl_token_list_t *scan(source_code_t *src)
         jl_token_list_add(token_list,  jl_token_new(COMMA));
       break;
       case '.':
-        if(is_number(peek(src, 1)))
+        if(is_number(jl_source_code_peek(src, 1)))
         {
           jl_token_t *token_number = jl_token_new(NUMBER);
           token_number->literal = consume_number(src);
@@ -452,7 +335,6 @@ jl_token_list_t *scan(source_code_t *src)
       case '+':
         jl_token_list_add(token_list,  jl_token_new(PLUS));
       break;
-      case ';':
         jl_token_list_add(token_list,  jl_token_new(SEMICOLON));
      break;
       case '/':
@@ -468,10 +350,10 @@ jl_token_list_t *scan(source_code_t *src)
         jl_token_list_add(token_list, token_string);
       break; 
       case '!':
-       if(peek(src, 1) == '=')
+       if(jl_source_code_peek(src, 1) == '=')
         {
           jl_token_list_add(token_list, jl_token_new(BANG_EQUAL));
-          advance(src);
+          jl_source_code_advance(src);
         }
         else 
         {
@@ -479,20 +361,20 @@ jl_token_list_t *scan(source_code_t *src)
         }
       break;
       case '=':
-        if(peek(src, 1) == '=')
+        if(jl_source_code_peek(src, 1) == '=')
         {
           jl_token_list_add(token_list, jl_token_new(EQUAL_EQUAL));
-          advance(src); 
+          jl_source_code_advance(src); 
         }
         else {
           jl_token_list_add(token_list, jl_token_new(EQUAL));
         }
       break;
       case '>':
-        if(peek(src, 1) == '=')
+        if(jl_source_code_peek(src, 1) == '=')
         {
           jl_token_list_add(token_list, jl_token_new(GREATER_EQUAL));
-          advance(src);
+          jl_source_code_advance(src);
         }
         else 
         {
@@ -500,10 +382,10 @@ jl_token_list_t *scan(source_code_t *src)
         }
       break;
       case '<':
-        if(peek(src, 1) == '=')
+        if(jl_source_code_peek(src, 1) == '=')
         {
           jl_token_list_add(token_list, jl_token_new(LESS_EQUAL));
-          advance(src);
+          jl_source_code_advance(src);
         }
         else 
         {
@@ -525,6 +407,9 @@ jl_token_list_t *scan(source_code_t *src)
         jl_token_list_add(token_list, token_number);
       break;
       case '\n':
+      case ';':
+        jl_token_list_add(token_list, jl_token_new(TERMINATOR));
+        break;
       case '\t':
       case ' ':
       break;
@@ -544,6 +429,10 @@ jl_token_list_t *scan(source_code_t *src)
         }
         jl_token_list_add(token_list, token);
     }
+  }
+  if(token_list->count > 0 && jl_token_list_peek(token_list, 0)->type != TERMINATOR)
+  {
+    jl_token_list_add(token_list, jl_token_new(TERMINATOR));
   }
   jl_token_list_add(token_list, jl_token_new(END_OF_FILE));
   return token_list;
