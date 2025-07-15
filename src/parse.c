@@ -96,13 +96,17 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   return NULL;
 }
 
-jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
+jl_syntax_t *parse_unary(jl_token_list_t * tokens)
 {
-  jl_token_t *token = jl_token_list_peek(tokens, 0);
   jl_syntax_t *left = parse_primary_expression(tokens);
-  while(token != NULL && (token->type == STAR || token->type == SLASH || token->type == MODULUS))
+  jl_token_t *token = jl_token_list_peek(tokens, 0);
+  while(token != NULL && token->type == BANG)
   {
-    jl_syntax_t *op = new_syntax(); 
+    jl_syntax_t *op = new_syntax();
+    if(op == NULL)
+    {
+      return NULL;
+    }
     op->token = jl_token_list_advance(tokens);
     if(op->token == NULL)
     {
@@ -114,6 +118,30 @@ jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
     op->right = parse_primary_expression(tokens);
     left = op;
   }
+  return left; 
+}
+
+jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
+{
+  jl_token_t *token = jl_token_list_peek(tokens, 0);
+  jl_syntax_t *left = parse_unary(tokens);
+  while(token != NULL && (
+        token->type == STAR || 
+        token->type == SLASH || 
+        token->type == MODULUS))
+  {
+    jl_syntax_t *op = new_syntax(); 
+    op->token = jl_token_list_advance(tokens);
+    if(op->token == NULL)
+    {
+      free(op);
+      printf("end of tokens?\n");
+      return NULL;
+    }
+    op->left = left;
+    op->right = parse_unary(tokens);
+    left = op;
+  }
   return left;
 }
 
@@ -121,7 +149,9 @@ jl_syntax_t *parse_additive(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_multiplicitive(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  while(token != NULL && (token->type == PLUS || token->type == MINUS))
+  while(token != NULL && (
+        token->type == PLUS || 
+        token->type == MINUS))
   {
     jl_syntax_t *op = new_syntax();
     if(op == NULL)
@@ -142,9 +172,65 @@ jl_syntax_t *parse_additive(jl_token_list_t * tokens)
   return left; 
 }
 
+jl_syntax_t *parse_comparision(jl_token_list_t * tokens)
+{
+  jl_syntax_t *left = parse_additive(tokens);
+  jl_token_t *token = jl_token_list_peek(tokens, 0);
+  while(token != NULL && (
+        token->type == GREATER_EQUAL || 
+        token->type == LESS_EQUAL || 
+        token->type == GREATER || 
+        token->type == LESS))
+  {
+    jl_syntax_t *op = new_syntax();
+    if(op == NULL)
+    {
+      return NULL;
+    }
+    op->token = jl_token_list_advance(tokens);
+    if(op->token == NULL)
+    {
+      free(op);
+      printf("end of tokens?\n");
+      return NULL;
+    }
+    op->left = left;
+    op->right = parse_additive(tokens);
+    left = op;
+  }
+  return left; 
+}
+
+jl_syntax_t *parse_equality(jl_token_list_t * tokens)
+{
+  jl_syntax_t *left = parse_comparision(tokens);
+  jl_token_t *token = jl_token_list_peek(tokens, 0);
+  while(token != NULL && (  
+        token->type == EQUAL_EQUAL || 
+        token->type == BANG_EQUAL))
+  {
+    jl_syntax_t *op = new_syntax();
+    if(op == NULL)
+    {
+      return NULL;
+    }
+    op->token = jl_token_list_advance(tokens);
+    if(op->token == NULL)
+    {
+      free(op);
+      printf("end of tokens?\n");
+      return NULL;
+    }
+    op->left = left;
+    op->right = parse_comparision(tokens);
+    left = op;
+  }
+  return left; 
+}
+
 jl_syntax_t *parse_expression(jl_token_list_t *tokens)
 {
-  return parse_additive(tokens);
+  return parse_equality(tokens);
 }
 
 jl_syntax_t *parse_statement(jl_token_list_t *tokens)
