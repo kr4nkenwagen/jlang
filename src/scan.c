@@ -105,7 +105,7 @@ char *consume_number(jl_source_code_t *src)
     return NULL;
   }
   strncpy(number, src->src + src->pointer, size);
-  for(int i = 0; i < size; i++)
+  for(int i = 0; i < size - 1; i++)
   {
     jl_source_code_advance(src);
   }
@@ -131,7 +131,7 @@ char *consume_variable_name(jl_source_code_t *src)
     return NULL;
   }
   strncpy(variable, src->src + src->pointer, size);
-  for(int i = 0; i < size; i++)
+  for(int i = 0; i < size - 1; i++)
   {
     jl_source_code_advance(src);
   }
