@@ -47,7 +47,7 @@ char *consume_string(jl_source_code_t *src)
   }
   strncpy(result, src->src + src->pointer + 1, size - 2);
   result[size] = '\0';
-  for(int i = 0; i < size; i++)
+  for(int i = 0; i < size - 1; i++)
   {
     jl_source_code_advance(src);
   }
