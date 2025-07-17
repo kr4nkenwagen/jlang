@@ -19,7 +19,7 @@ void main ()
   jl_object_t *numnum = jl_add(num, num);
   jl_object_t *strstr = jl_add(str, str);
   
-  //jl_token_list_t *tokens = scan(jl_source_code_from_file("test.jonx"));
+  // l_token_list_t *tokens = scan(jl_source_code_from_file("test.jonx"));
 
   //jl_program_t *syntax = parse(tokens);
   repl();

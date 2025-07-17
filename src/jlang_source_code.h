@@ -1,3 +1,5 @@
+#include <stddef.h>
+
 typedef struct jl_source_code {
   int is_at_end;
   size_t size;

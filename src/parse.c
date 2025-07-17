@@ -52,7 +52,6 @@ jl_syntax_t *parse_number(jl_token_list_t *tokens)
     printf("end of tokens?\n");
     return NULL;
   }
-  printf("parsing number\n");
   jl_token_list_advance(tokens);
   if(strchr(syntax->token->literal, '.') != NULL)
   {
@@ -105,13 +104,12 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       jl_token_list_advance(tokens);
       return syntax;
     case TERMINATOR:
-      jl_token_list_advance(tokens);
       free(syntax);
       return NULL;
     break;
   }
   free(syntax);
-  printf("syntax errors: %i\n", token->type);
+  printf("syntax error: %i\n", token->type);
   return NULL;
 }
 
@@ -137,8 +135,8 @@ jl_syntax_t *parse_unary(jl_token_list_t * tokens)
 
 jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
 {
- jl_token_t *token = jl_token_list_peek(tokens, 0);
   jl_syntax_t *left = parse_unary(tokens);
+  jl_token_t *token = jl_token_list_peek(tokens, 0);
   if(token != NULL && (
         token->type == STAR || 
         token->type == SLASH || 
@@ -150,7 +148,6 @@ jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
     {
       return NULL;
     }
-    printf("parsing multiplication\n");
     op->token = token;
     op->left = left;
     op->right = parse_unary(tokens);
@@ -167,14 +164,12 @@ jl_syntax_t *parse_additive(jl_token_list_t * tokens)
         token->type == PLUS || 
         token->type == MINUS))
   {
-
     jl_token_list_advance(tokens);
     jl_syntax_t *op = new_syntax();
     if(op == NULL)
     {
       return NULL;
     }
-    printf("parsing addition\n");
     op->token = token;
     op->left = left;
     op->right = parse_multiplicitive(tokens);
@@ -242,45 +237,27 @@ jl_syntax_t *parse_statement(jl_token_list_t *tokens)
   return parse_expression(tokens);
 }
 
-//******************
-//* DEBUG FUNCTION *
-//******************
-int count_syntax(jl_syntax_t *syntax, int num)
-{ 
-  if(syntax->token->type == NUMBER)
-  {
-    if(syntax->value->type == INT)
-    {
-      printf("syntax level: %i token: %i value: %i\n", num, syntax->token->type, syntax->value->data.v_int); 
-    }
-    else
-    {
-      printf("syntax level: %i token: %i value: %i\n", num, syntax->token->type, syntax->value->data.v_float); 
-    }
-  }
-  else
-  {
-    printf("syntax level: %i token: %i\n", num, syntax->token->type); 
-  }
-  num++;
-  if(syntax->left != NULL)
-  {
-    count_syntax(syntax->left, num);
-  }
-  if(syntax->right != NULL)
-  {
-    count_syntax(syntax->right, num); 
-  }
-  return num;
-}
-
 jl_program_t *parse(jl_token_list_t *tokens)
 {
   jl_program_t *program = jl_new_program(); 
   while(jl_token_list_peek(tokens, 0)->type != END_OF_FILE)
   {
-    jl_program_add(program, parse_statement(tokens));
-    printf("syntax count: %i\n", count_syntax(program->statements[program->count - 1], 0));
+    jl_syntax_t *syntax = NULL;
+    jl_syntax_t *first_syntax = NULL;
+    while(jl_token_list_peek(tokens, 0)->type != TERMINATOR)
+    {
+      printf("%i\n", jl_token_list_peek(tokens, 0)->type);
+      if(syntax == NULL)
+      {
+        syntax = parse_statement(tokens);
+        first_syntax = syntax;
+        continue;
+      }
+      syntax->next = parse_statement(tokens);
+      syntax = syntax->next; 
+    }
+    jl_token_list_advance(tokens);
+    jl_program_add(program, first_syntax);
   }
   return program;
 }
