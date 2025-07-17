@@ -84,8 +84,13 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
     break;
     case FALSE:
     case TRUE:
+      syntax->token = token;
+      jl_token_list_advance(tokens);
+      return syntax;
+    break;
     case NIL:
       syntax->token = token;
+      syntax->value = jl_new_null();
       jl_token_list_advance(tokens);
       return syntax;
     break;

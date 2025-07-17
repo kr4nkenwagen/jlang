@@ -4,7 +4,8 @@ typedef enum jl_object_type {
   INT,
   FLOAT,
   STRING,
-  ARRAY
+  ARRAY,
+  NIL_OBJECT
 }jl_object_type_t;
 
 typedef struct jl_object jl_object_t;
@@ -32,6 +33,7 @@ jl_object_t *jl_new_int(int value);
 jl_object_t *jl_new_float(float value);
 jl_object_t *jl_new_string(char *value);
 jl_object_t *jl_new_array(size_t size);
+jl_object_t *jl_new_null();
 
 void jl_object_free(jl_object_t *obj);
 
@@ -39,6 +41,7 @@ size_t jl_length(jl_object_t * obj);
 jl_object_t *jl_add(jl_object_t *a, jl_object_t *b);
 void jl_array_set(jl_object_t *array, size_t index, jl_object_t *obj);
 jl_object_t * jl_array_get(jl_object_t *array, size_t index); 
+void jl_object_set_null(jl_object_t *obj);
 
 void ref_free(jl_object_t *obj); 
 void ref_dec(jl_object_t *obj);

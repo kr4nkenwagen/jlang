@@ -153,7 +153,7 @@ int is_next_word_match(jl_source_code_t *src, char *word)
     }
   }
   char after = jl_source_code_peek(src, size);
-  if(after == '\n' || after == ' ' || after == '\t')
+  if(after == '\n' || after == ' ' || after == '\t' || after == ';' || src->pointer + size <= src->size)
   {
     return 1;
   }

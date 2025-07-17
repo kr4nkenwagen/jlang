@@ -71,6 +71,28 @@ jl_object_t *new_array(size_t size)
   return obj;
 }
 
+jl_object_t *jl_new_null()
+{
+  jl_object_t *obj = malloc(sizeof(jl_object_t));
+  if(obj == NULL)
+  {
+    return NULL;
+  }
+  obj->is_marked = false;
+  obj->type = NIL_OBJECT;
+  obj->refcount = 1;
+  return obj;
+}
+
+void jl_object_set_null(jl_object_t *obj)
+{
+  if(obj == NULL)
+  {
+    return;
+  }
+  obj->type = NIL_OBJECT;
+}
+
 size_t jl_length(jl_object_t *obj)
 {
   if(obj == NULL)
