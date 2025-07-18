@@ -77,6 +77,37 @@ void jl_multiply_string(jl_object_t *target, jl_object_t *multiplier)
   target->data.v_string[new_size] = '\0';
 }
 
+void jl_divide_string(jl_object_t *target, jl_object_t *divider)
+{
+  if(target == NULL || divider == NULL || target->type != STRING || divider->type != INT)
+  {
+    return;
+  }
+  size_t old_size = jl_string_length(target); 
+  size_t new_size = old_size / divider->data.v_int;
+  char *tmp_string = malloc(sizeof(char) * new_size);
+  memcpy(tmp_string, target->data.v_string, old_size);
+  free(target->data.v_string);
+  target->data.v_string = tmp_string;
+  target->data.v_string[new_size] = '\0';
+}
+
+void jl_modulus_string(jl_object_t *target, jl_object_t *modulus)
+{
+  if(target == NULL || modulus == NULL || target->type != STRING || modulus->type != INT)
+  {
+    return;
+  }
+  size_t old_size = jl_string_length(target); 
+  size_t new_size = old_size % modulus->data.v_int;
+  char *tmp_string = malloc(sizeof(char) * new_size);
+  memcpy(tmp_string, target->data.v_string+ (old_size - new_size), new_size);
+  free(target->data.v_string);
+  target->data.v_string = tmp_string;
+  target->data.v_string[new_size] = '\0';
+}
+
+
 void jl_print_object(jl_object_t *target)
 {
   if(target == NULL)

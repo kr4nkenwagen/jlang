@@ -245,6 +245,139 @@ jl_object_t *jl_multiply(jl_object_t *a, jl_object_t *b)
   return NULL;
 }
 
+jl_object_t *jl_divide(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(a->data.v_int == 0)
+    {
+      printf("ERROR: divide by 0");
+      return NULL;
+    }
+    if(b->type == FLOAT)
+    {
+      if(b->data.v_float == 0)
+      {
+        printf("ERROR: divide by 0");
+        return NULL;
+      }
+      return jl_new_int(a->data.v_int / b->data.v_float);  
+    }
+    else if(b->type == INT)
+    {
+      if(b->data.v_int == 0)
+      {
+        printf("ERROR: divide by 0");
+        return NULL;
+      }
+      return jl_new_int(a->data.v_int / b->data.v_int);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(a->data.v_float == 0)
+    {
+      printf("ERROR: divide by 0");
+      return NULL;
+    }
+    if(b->type == INT)
+    {
+      if(b->data.v_int == 0)
+      {
+        printf("ERROR: divide by 0");
+        return NULL;
+      }
+      return jl_new_float(a->data.v_float / b->data.v_int); 
+    }
+    else if(b->type == FLOAT)
+    {
+      if(b->data.v_float == 0)
+      {
+        printf("ERROR: divide by 0");
+        return NULL;
+      }
+     return jl_new_float(a->data.v_float / b->data.v_float);
+    }
+  }
+  if(a->type == STRING)
+  {
+    if(b->type == STRING)
+    {
+      printf("Hey! Thats  illegal!");
+      return a;
+    }
+    else if(b->type == INT)
+    {
+      if(b->data.v_int == 0)
+      {
+        printf("ERROR: divide by 0");
+        return NULL;
+      }
+      jl_divide_string(a, b);
+      return a;
+    }
+  }
+  return NULL;
+}
+
+jl_object_t *jl_modulus(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(a->data.v_int == 0)
+    {
+      printf("ERROR: divide by 0");
+      return NULL;
+    }
+    if(b->type == FLOAT)
+    {
+        printf("ERROR: divide by 0");
+        return NULL;
+    }
+    else if(b->type == INT)
+    {
+      if(b->data.v_int == 0)
+      {
+        printf("ERROR: divide by 0");
+        return NULL;
+      }
+      return jl_new_int(a->data.v_int % b->data.v_int);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+      printf("ERROR: divide by 0");
+      return NULL;
+  }
+  if(a->type == STRING)
+  {
+    if(b->type == STRING)
+    {
+      printf("Hey! Thats  illegal!");
+      return a;
+    }
+    else if(b->type == INT)
+    {
+      if(b->data.v_int == 0)
+      {
+        printf("ERROR: divide by 0");
+        return NULL;
+      }
+      jl_modulus_string(a, b);
+      return a;
+    }
+  }
+  return NULL;
+}
+
 void ref_free(jl_object_t *obj)
 {
   if(obj == NULL || obj->refcount > 0)

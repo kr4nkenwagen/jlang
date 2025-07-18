@@ -337,6 +337,9 @@ jl_token_list_t *scan(jl_source_code_t *src)
       break;
         jl_token_list_add(token_list,  jl_token_new(SEMICOLON));
      break;
+      case '%':
+        jl_token_list_add(token_list,  jl_token_new(MODULUS));
+      break;
       case '/':
         jl_token_list_add(token_list,  jl_token_new(SLASH));
       break;

@@ -37,6 +37,14 @@ jl_object_t *eval_binary_expression(jl_syntax_t *syntax)
   {
     return jl_multiply(syntax->left->value, syntax->right->value);
   }
+  else if(syntax->token->type == SLASH)
+  {
+    return jl_divide(syntax->left->value, syntax->right->value);
+  }
+   else if(syntax->token->type == MODULUS)
+  {
+    return jl_modulus(syntax->left->value, syntax->right->value);
+  }
   return NULL;
 }
 
