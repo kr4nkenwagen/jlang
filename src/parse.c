@@ -251,7 +251,6 @@ jl_program_t *parse(jl_token_list_t *tokens)
     jl_syntax_t *first_syntax = NULL;
     while(jl_token_list_peek(tokens, 0)->type != TERMINATOR)
     {
-      printf("%i\n", jl_token_list_peek(tokens, 0)->type);
       if(syntax == NULL)
       {
         syntax = parse_statement(tokens);

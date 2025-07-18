@@ -1,8 +1,9 @@
 #include "jlang_object.h"
+#include "jlang_common.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
-
+ 
 jl_object_t *jl_new_int(int value)
 {
   jl_object_t *obj = malloc(sizeof(jl_object_t));
@@ -152,6 +153,94 @@ jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
     jl_object_t * obj = jl_new_string(str);
     free(str);
     return obj;
+  }
+  return NULL;
+}
+
+jl_object_t *jl_subtract(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == FLOAT)
+    {
+      return jl_new_int(a->data.v_int - b->data.v_float);  
+    }
+    else if(b->type == INT)
+    {
+      return jl_new_int(a->data.v_int - b->data.v_int);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_float(a->data.v_float - b->data.v_int); 
+    }
+    else if(b->type == FLOAT)
+    {
+      return jl_new_float(a->data.v_float - b->data.v_float);
+    }
+  }
+  if(a->type == STRING)
+  {
+    if(b->type == STRING)
+    {
+      jl_strip_instances_from_string(a, b);
+      return a;
+    }
+    else if(b->type == INT)
+    {
+      jl_shorten_string(a, b);
+      return a;
+    }
+  }
+  return NULL;
+}
+
+jl_object_t *jl_multiply(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == FLOAT)
+    {
+      return jl_new_int(a->data.v_int * b->data.v_float);  
+    }
+    else if(b->type == INT)
+    {
+      return jl_new_int(a->data.v_int * b->data.v_int);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_float(a->data.v_float * b->data.v_int); 
+    }
+    else if(b->type == FLOAT)
+    {
+      return jl_new_float(a->data.v_float * b->data.v_float);
+    }
+  }
+  if(a->type == STRING)
+  {
+    if(b->type == STRING)
+    {
+      printf("Hey! Thats  illegal!");
+      return a;
+    }
+    else if(b->type == INT)
+    {
+      jl_multiply_string(a, b);
+      return a;
+    }
   }
   return NULL;
 }

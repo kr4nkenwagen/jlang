@@ -2,6 +2,7 @@
 #include <string.h>
 #include "scan.h"
 #include "parse.h"
+#include "interprete.h"
 #include "info.h"
 #include "jlang_source_code.h"
 #include "jlang_token.h"
@@ -112,6 +113,7 @@ void repl()
     jl_source_code_t *src = jl_source_code_from_repl(input);
     jl_token_list_t *tokens = scan(src);
     jl_program_t *program = parse(tokens);
+    interprete(program);
     debug(tokens, program);
   }
 }
