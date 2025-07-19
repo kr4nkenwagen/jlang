@@ -107,7 +107,6 @@ void jl_modulus_string(jl_object_t *target, jl_object_t *modulus)
   target->data.v_string[new_size] = '\0';
 }
 
-
 void jl_print_object(jl_object_t *target)
 {
   if(target == NULL)

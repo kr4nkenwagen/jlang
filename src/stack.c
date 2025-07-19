@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include "jlang_object.h"
 #include "stack.h"
 #include <stdlib.h>
 
@@ -19,7 +21,7 @@
   return obj;
 }
 
-void stack_push(stack_t *stack, void *obj)
+void stack_push(stack_t *stack, jl_object_t *obj)
 {
   if(obj == NULL)
   {
@@ -28,7 +30,7 @@ void stack_push(stack_t *stack, void *obj)
   if(stack->count >= stack->capacity)
   {
     stack->capacity *= 2;
-    if(realloc(stack->data, sizeof(void *) * stack->capacity) == NULL)
+    if(realloc(stack->data, sizeof(jl_object_t *) * stack->capacity) == NULL)
     {
       printf("REPLACE ME WITH ERROR");
     }
@@ -36,7 +38,7 @@ void stack_push(stack_t *stack, void *obj)
   stack->data[stack->count++] = obj;
 }
 
-void *stack_pop(stack_t *stack)
+jl_object_t *stack_pop(stack_t *stack)
 {
   if(stack == NULL)
   {
@@ -73,4 +75,21 @@ void stack_remove_nulls(stack_t *stack)
     }
   }
   stack->count = new_count;
+}
+
+jl_object_t *jl_stack_get(stack_t* stack, char *name)
+{
+  if(stack == NULL)
+  {
+    return NULL;
+  }
+  for(int i = 0; i < stack->count; i++)
+  {
+    if(strcmp(stack->data[i]->name, name) == 0)
+    {
+
+      return stack->data[i];
+    }
+  }
+  return NULL;
 }

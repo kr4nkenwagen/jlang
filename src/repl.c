@@ -8,6 +8,7 @@
 #include "jlang_token.h"
 #include "jlang_syntax.h"
 #include "jlang_program.h"
+#include "stack.h"
 
 //*******************
 //* DEBUG FUNCTIONS *
@@ -38,10 +39,7 @@ int count_syntax(jl_syntax_t *syntax, int num)
   if(syntax->right != NULL)
   {
     count_syntax(syntax->right, num); 
-  if(syntax->next != NULL)
-  {
-    count_syntax(syntax->next, num - 1);
-  } }
+  } 
   return num;
 }
 void count_tokens(jl_token_list_t *tokens)
@@ -102,6 +100,10 @@ char *user_input()
 void repl()
 {
   printf("%s[%s] - %s\nrepl\n", APPLICATION_NAME, VERSION, AUTHOR);
+  stack_t * vm = stack_new(8);
+  jl_object_t *jon = jl_new_int(1337);
+  jon->name = "jon";
+  stack_push(vm, jon);
   while(true)
   {
     putchar('>');
@@ -113,7 +115,7 @@ void repl()
     jl_source_code_t *src = jl_source_code_from_repl(input);
     jl_token_list_t *tokens = scan(src);
     jl_program_t *program = parse(tokens);
-    interprete(program);
+    interprete(program, vm);
     debug(tokens, program);
   }
 }

@@ -26,6 +26,7 @@ typedef struct jl_object {
   bool is_marked;
   int refcount;
   jl_object_type_t type;
+  char *name;
   jl_object_data_t data;
 }jl_object_t;
 

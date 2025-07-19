@@ -76,6 +76,41 @@ int is_number(char character)
   }
 }
 
+int is_end_of_word(char c)
+{
+  switch(c)
+  {
+    case '\0':
+    case '\n':
+    case ' ':
+    case ';':
+      return 1;
+  }
+  return 0;
+}
+
+char *consume_word(jl_source_code_t * src)
+{
+  size_t size = 32;
+  int i = 0;
+  char * word = malloc(sizeof(char) * size);
+  for(; is_end_of_word(jl_source_code_peek(src, 0)) == 0; i++)
+  {
+    if(i - 1 == size)
+    {
+      size *=2;
+      char *tmp_word = malloc(sizeof(char) * size);
+      memcpy(tmp_word, word, size/2);
+      free(word);
+      word = tmp_word;
+    }
+    word[i] = jl_source_code_peek(src, 0);
+    jl_source_code_advance(src);
+  }
+  word[i] = '\0';
+  return word;
+}
+
 char *consume_number(jl_source_code_t *src)
 {
   if(src == NULL)
@@ -160,13 +195,15 @@ int is_next_word_match(jl_source_code_t *src, char *word)
   return 0;
 }
 
-void consume_word(jl_source_code_t * src)
+jl_token_t *consume_identifier(jl_source_code_t *src)
 {
-  char x;
-  do
+  if(isalpha(jl_source_code_peek(src, -1)))
   {
-    x = jl_source_code_advance(src);
-  }while(x != '\0' && x != '\n' && x != ' ' );
+    return NULL;
+  }
+  jl_token_t *token = jl_token_new(IDENTIFIER);
+  token->literal = consume_word(src);
+  return token;
 }
 
 jl_token_t *consume_reserved_word(jl_source_code_t *src)
@@ -427,7 +464,7 @@ jl_token_list_t *scan(jl_source_code_t *src)
         jl_token_t *token = consume_reserved_word(src);
         if(token == NULL)
         {
-          printf("[ERROR:%i:%i] Unexpected character '%c'\n", src->line, src->column, src->src[src->pointer]);
+          jl_token_list_add(token_list, consume_identifier(src));
           break;
         }
         jl_token_list_add(token_list, token);

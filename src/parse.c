@@ -74,26 +74,26 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   jl_syntax_t *syntax = new_syntax();
   switch(token->type)
   {
+    case IDENTIFIER: 
+      syntax->token = token;
+      jl_token_list_advance(tokens);
+      return syntax;
     case STRING:
       free(syntax);
       return parse_string(tokens);
-    break;
     case NUMBER:
       free(syntax);
       return parse_number(tokens);
-    break;
     case FALSE:
     case TRUE:
       syntax->token = token;
       jl_token_list_advance(tokens);
       return syntax;
-    break;
     case NIL:
       syntax->token = token;
       syntax->value = jl_new_null();
       jl_token_list_advance(tokens);
       return syntax;
-    break;
     case LEFT_PAREN:
       if(jl_token_list_advance(tokens) == NULL)
       {
@@ -111,7 +111,6 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
     case TERMINATOR:
       free(syntax);
       return NULL;
-    break;
   }
   free(syntax);
   printf("syntax error: %i\n", token->type);
@@ -248,20 +247,21 @@ jl_program_t *parse(jl_token_list_t *tokens)
   while(jl_token_list_peek(tokens, 0)->type != END_OF_FILE)
   {
     jl_syntax_t *syntax = NULL;
-    jl_syntax_t *first_syntax = NULL;
+    jl_syntax_t *prev_syntax = NULL;
     while(jl_token_list_peek(tokens, 0)->type != TERMINATOR)
     {
       if(syntax == NULL)
       {
         syntax = parse_statement(tokens);
-        first_syntax = syntax;
+        prev_syntax = syntax;
         continue;
       }
-      syntax->next = parse_statement(tokens);
-      syntax = syntax->next; 
+      syntax = parse_statement(tokens);
+      syntax->left = prev_syntax;
+      prev_syntax = syntax;
     }
     jl_token_list_advance(tokens);
-    jl_program_add(program, first_syntax);
+    jl_program_add(program, syntax);
   }
   return program;
 }

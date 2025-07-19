@@ -45,7 +45,8 @@ typedef enum jl_token_type{
   TRUE,
   VAR,
   WHILE,
-  END_OF_FILE
+  END_OF_FILE,
+  IDENTIFIER
 }jl_token_type_t;
 
 typedef struct jl_token {
