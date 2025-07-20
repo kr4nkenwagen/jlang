@@ -31,11 +31,11 @@ jLang supports 6 data types.
 | Array| Takes values in ```[0..]```.|
 | Null | Takes ```Null``` constant. |
 
-#Termination
+# Termination
 
 Statements can be terminated with newline and with ';'.
 
-#String operations
+# String operations
 
 ```
 var str = "Hello ", ing = "World";
