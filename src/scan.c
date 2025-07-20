@@ -147,32 +147,6 @@ char *consume_number(jl_source_code_t *src)
   return number;
 }
 
-char *consume_variable_name(jl_source_code_t *src)
-{
-  if(src == NULL)
-  {
-    return NULL;
-  }
-  char character = jl_source_code_peek(src, 0);
-  size_t size = 1;
-  while(isalpha(character) || character == '_')
-  {
-    character = jl_source_code_peek(src, size++);
-  }
-  size--;
-  char *variable = malloc(sizeof(char) * size);
-  if(variable == NULL)
-  {
-    return NULL;
-  }
-  strncpy(variable, src->src + src->pointer, size);
-  for(int i = 0; i < size - 1; i++)
-  {
-    jl_source_code_advance(src);
-  }
-  return variable;
-}
-
 int is_next_word_match(jl_source_code_t *src, char *word)
 {
   if (src == NULL)
@@ -229,6 +203,11 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
       consume_word(src);
       return jl_token_new(CLASS);
     }
+    else if(is_next_word_match(src, "const"))
+    {
+        consume_word(src);
+        return jl_token_new(CONST);
+      }
   case 'e':
   case 'E':
     if(is_next_word_match(src, "else"))
@@ -311,10 +290,8 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
   case 'V':
     if(is_next_word_match(src, "var"))
     {
-      jl_token_t *token = jl_token_new(VAR);
       consume_word(src);
-      token->lexeme = consume_variable_name(src);
-      return token;
+      return jl_token_new(VAR);
     }
   case 'w':
   case 'W':

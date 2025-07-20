@@ -378,6 +378,21 @@ jl_object_t *jl_modulus(jl_object_t *a, jl_object_t *b)
   return NULL;
 }
 
+void jl_assign(jl_object_t *target, jl_object_t *source)
+{
+  printf("%i\n", target->data.v_int);
+  if(target == NULL || source == NULL)
+  {
+    return;
+  }
+  if(target->is_const == true)
+  {
+    return;
+  }
+  target->data = source->data;
+  target->type = source->type;
+}
+
 void ref_free(jl_object_t *obj)
 {
   if(obj == NULL || obj->refcount > 0)

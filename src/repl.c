@@ -15,16 +15,9 @@
 //*******************
 int count_syntax(jl_syntax_t *syntax, int num)
 { 
-  if(syntax->token->type == NUMBER)
+  if(syntax->token->type == NUMBER || syntax->token->type == STRING || syntax->token->type == IDENTIFIER)
   {
-    if(syntax->value->type == INT)
-    {
-      printf("syntax level: %i token: %i value: %i\n", num, syntax->token->type, syntax->value->data.v_int); 
-    }
-    else
-    {
-      printf("syntax level: %i token: %i value: %i\n", num, syntax->token->type, syntax->value->data.v_float); 
-    }
+    printf("syntax level: %i token: %i literal: %s\n", num, syntax->token->type, syntax->token->literal); 
   }
   else
   {
@@ -40,6 +33,10 @@ int count_syntax(jl_syntax_t *syntax, int num)
   {
     count_syntax(syntax->right, num); 
   } 
+  if(syntax->value != NULL)
+  {
+    count_syntax(syntax->value, num);
+  }
   return num;
 }
 void count_tokens(jl_token_list_t *tokens)
@@ -115,7 +112,7 @@ void repl()
     jl_source_code_t *src = jl_source_code_from_repl(input);
     jl_token_list_t *tokens = scan(src);
     jl_program_t *program = parse(tokens);
-    interprete(program, vm);
     debug(tokens, program);
+    interprete(program, vm);
   }
 }

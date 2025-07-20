@@ -24,6 +24,7 @@ typedef union jl_object_data {
 
 typedef struct jl_object {
   bool is_marked;
+  bool is_const;
   int refcount;
   jl_object_type_t type;
   char *name;
@@ -44,6 +45,7 @@ jl_object_t *jl_subtract(jl_object_t *a, jl_object_t *b);
 jl_object_t *jl_multiply(jl_object_t *target, jl_object_t *multiplier);
 jl_object_t *jl_divide(jl_object_t *target, jl_object_t *divider);
 jl_object_t *jl_modulus(jl_object_t *target, jl_object_t *modulus);
+void jl_assign(jl_object_t *target, jl_object_t *source);
 void jl_array_set(jl_object_t *array, size_t index, jl_object_t *obj);
 jl_object_t * jl_array_get(jl_object_t *array, size_t index); 
 void jl_object_set_null(jl_object_t *obj);
