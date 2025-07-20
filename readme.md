@@ -54,8 +54,8 @@ Statements can be terminated with newline and with ';'.
 # String operations
 
 ```
-var str = "Hello ", ing = "World";
-var string = str + str;
+const str = "Hello ", ing = "World";
+const string = str + str;
 
 ```
 
@@ -63,39 +63,45 @@ Variable string will have value "Hello World".
 
 
 ```
-var str = "Hello World";
-var string = str + 3;
+const str = "Hello World";
+const string = str + 3;
 
 ```
 
 Variable string will have value "Hello WorldHel".
 
 ```
-var str = "Hello  WorldHel";
-var string = str - 3;
+const str = "Hello  WorldHel";
+const string = str - 3;
 
 ```
 
 Variable string will have value "Hello World",
 
 ```
-var str = "Hello World";
-var string = str * 2;
+const str = "Hello World";
+const string = str * 2;
 
 ```
 
 Variable string will have value "Hello WorldHello World";
 
 ```
-var str = "Hello World";
-var string = str / 2
+const str = "Hello World";
+const string = str / 2
 ```
 
 Variable string will have value "Hello ". 
 
 ```
-var str = "Hello World";
-var string = str .. 1;
+const str = "Hello World";
+const string = str .. 1;
 ```
 
 Variable string will have value "Hello World1".
+
+```
+const str = "Hello World";
+const string = str % 2
+```
+Variable string will have value "d".
