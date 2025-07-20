@@ -18,6 +18,22 @@ const x = 1, y = 2, z = 3;
 const str = "Hello World";
 ```
 
+## number
+```
+const int = 1;
+const float = 1.0;
+```
+
+## Booleans
+```
+const boolean = true;
+```
+
+## Array
+```
+var array = ["Hello World", 8];
+array[2] = "I forgot to add this.";
+```
 # Types
 
 jLang supports 6 data types.
