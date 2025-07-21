@@ -18,6 +18,21 @@ jl_object_t *jl_new_int(int value)
   return obj;
 }
 
+jl_object_t *jl_new_bool(bool value)
+{
+  jl_object_t *obj = malloc(sizeof(jl_object_t));
+  if(obj == NULL)
+  {
+    return NULL;
+  }
+  obj->is_marked = false;
+  obj->type = BOOLEAN;
+  obj->data.v_bool = value;
+  obj->refcount = 1;
+  return obj;
+}
+
+
 jl_object_t *jl_new_float(float value)
 {
   jl_object_t *obj = malloc(sizeof(jl_object_t));
@@ -113,6 +128,371 @@ size_t jl_length(jl_object_t *obj)
       return obj->data.v_array->size;
   }
   return -1;
+}
+
+jl_object_t *jl_equals(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_int == b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_int == b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_int == b->data.v_bool);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_float == b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_float == b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_float == b->data.v_bool);
+    }
+  }
+  if(a->type == BOOLEAN)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_bool == b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_bool == b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_bool == b->data.v_bool);
+    }
+  }
+  if(a->type == STRING)
+  {
+    if(b->type == STRING)
+    {
+      return jl_new_bool(strcmp(a->data.v_string, b->data.v_string) == 0);
+    }
+  }
+  if(a->type == NIL_OBJECT)
+  {
+    if(b->type == NIL_OBJECT)
+    {
+      return jl_new_bool(true);
+    }
+  }
+  printf("Illegal comparsion!\n");
+  return NULL;
+}
+
+jl_object_t *jl_not_equals(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_int != b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_int != b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_int != b->data.v_bool);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_float != b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_float != b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_float != b->data.v_bool);
+    }
+  }
+  if(a->type == BOOLEAN)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_bool != b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_bool != b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_bool != b->data.v_bool);
+    }
+  }
+  if(a->type == STRING)
+  {
+    if(b->type == STRING)
+    {
+      return jl_new_bool(strcmp(a->data.v_string, b->data.v_string) != 0);
+    }
+  }
+  if(a->type == NIL_OBJECT)
+  {
+    if(b->type == NIL_OBJECT)
+    {
+      return jl_new_bool(true);
+    }
+  }
+  printf("Illegal comparsion!\n");
+  return NULL;
+}
+
+jl_object_t *jl_greater_equals(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_int >= b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_int >= b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_int >= b->data.v_bool);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_float >= b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_float >= b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_float >= b->data.v_bool);
+    }
+  }
+  if(a->type == BOOLEAN)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_bool >= b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_bool >= b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_bool >= b->data.v_bool);
+    }
+  }
+  if(a->type == NIL_OBJECT)
+  {
+    if(b->type == NIL_OBJECT)
+    {
+      return jl_new_bool(true);
+    }
+  }
+  printf("Illegal comparsion!\n");
+  return NULL;
+}
+
+jl_object_t *jl_greater(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_int > b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_int > b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_int > b->data.v_bool);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_float > b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_float > b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_float > b->data.v_bool);
+    }
+  }
+  if(a->type == BOOLEAN)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_bool > b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_bool > b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_bool > b->data.v_bool);
+    }
+  }
+  printf("Illegal comparsion!\n");
+  return NULL;
+}
+
+jl_object_t *jl_less(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_int < b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_int < b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_int < b->data.v_bool);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_float < b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_float < b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_float < b->data.v_bool);
+    }
+  }
+  if(a->type == BOOLEAN)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_bool < b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_bool < b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_bool < b->data.v_bool);
+    }
+  }
+  printf("Illegal comparsion!\n");
+  return NULL;
+}
+
+jl_object_t *jl_less_equals(jl_object_t *a, jl_object_t *b)
+{
+  if(a == NULL || b == NULL)
+  {
+    return NULL;
+  }
+  if(a->type == INT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_int <= b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_int <= b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_int <= b->data.v_bool);
+    }
+  }
+  if(a->type == FLOAT)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_float <= b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_float <= b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_float <= b->data.v_bool);
+    }
+  }
+  if(a->type == BOOLEAN)
+  {
+    if(b->type == INT)
+    {
+      return jl_new_bool(a->data.v_bool <= b->data.v_int);
+    }
+    if(b->type == FLOAT)
+    {
+      return jl_new_bool(a->data.v_bool <= b->data.v_float);
+    }
+    if(b->type == BOOLEAN)
+    {
+      return jl_new_bool(a->data.v_bool <= b->data.v_bool);
+    }
+  }
+  printf("Illegal comparsion!\n");
+  return NULL;
 }
 
 jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
@@ -380,7 +760,6 @@ jl_object_t *jl_modulus(jl_object_t *a, jl_object_t *b)
 
 void jl_assign(jl_object_t *target, jl_object_t *source)
 {
-  printf("%i\n", target->data.v_int);
   if(target == NULL || source == NULL)
   {
     return;

@@ -39,6 +39,41 @@ jl_object_t *parse_number(jl_syntax_t *syntax)
   return NULL;
 }
 
+jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, stack_t *vm)
+{
+  if(syntax == NULL)
+  {
+    return NULL;
+  }
+  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  if(syntax->token->type == EQUAL_EQUAL)
+  {
+    return jl_equals(left_hand_side, right_hand_side);
+  }
+  else if(syntax->token->type == BANG_EQUAL)
+  {
+    return jl_not_equals(left_hand_side, right_hand_side);
+  }
+  else if(syntax->token->type == GREATER_EQUAL)
+  {
+    return jl_greater_equals(left_hand_side, right_hand_side);
+  }
+  else if(syntax->token->type == LESS_EQUAL)
+  {
+    return jl_less_equals(left_hand_side, right_hand_side);
+  }
+  else if(syntax->token->type == LESS)
+  {
+    return jl_less(left_hand_side, right_hand_side);
+  }
+  else if(syntax->token->type == GREATER)
+  {
+    return jl_greater(left_hand_side, right_hand_side);
+  }
+  return NULL;
+}
+
 jl_object_t *eval_binary_expression(jl_syntax_t *syntax, stack_t *vm)
 {
   if(syntax == NULL)
@@ -76,7 +111,6 @@ void eval_assignment_expression(jl_syntax_t *syntax, stack_t *vm)
   {
     return;
   }
-  printf("hello\n");
   jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
   jl_assign(left_hand_side, right_hand_side);
@@ -114,8 +148,14 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm)
   }
   switch(syntax->token->type)
   {
+    case EQUAL_EQUAL:
+    case BANG_EQUAL:
+    case GREATER_EQUAL:
+    case LESS_EQUAL:
+    case LESS:
+    case GREATER:
+      return eval_comparison_expression(syntax, vm);
     case EQUAL:
-  printf("hello\n");
       eval_assignment_expression(syntax, vm);
       return NULL;
     case CONST:

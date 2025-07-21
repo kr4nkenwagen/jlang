@@ -126,5 +126,12 @@ void jl_print_object(jl_object_t *target)
     case STRING:
      printf("Object: %s\n", target->data.v_string);
     break;
+    case BOOLEAN:
+      if(target->data.v_bool == true)
+      {
+        printf("Object: true\n", target->data.v_string);
+        break;
+      }
+      printf("Object: false\n", target->data.v_string);
   }
 }
