@@ -67,7 +67,6 @@ int is_number(char character)
     case '7':
     case '8':
     case '9':
-    case '.':
       return 1;
     break;
     default:
@@ -120,7 +119,7 @@ char *consume_number(jl_source_code_t *src)
   int is_float = 0;
   size_t size = 1;
   char character = jl_source_code_peek(src, 0);
-  while(is_number(character))
+  while(is_number(character) || character == '.')
   {
     if(character == '.')
     {
@@ -348,6 +347,11 @@ jl_token_list_t *scan(jl_source_code_t *src)
           jl_token_t *token_number = jl_token_new(NUMBER);
           token_number->literal = consume_number(src);
           jl_token_list_add(token_list, token_number);
+        }
+        else if(jl_source_code_peek(src, 1) == '.')
+        {
+          jl_token_list_add(token_list, jl_token_new(DOT_DOT));
+          jl_source_code_advance(src);
         }
         else 
         {

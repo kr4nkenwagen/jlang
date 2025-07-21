@@ -65,7 +65,10 @@ jl_syntax_t *parse_string_operations(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_primary_expression(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && (token->type == COLON || token->type == COLON_HAT))
+  if(token != NULL && (
+     token->type == COLON || 
+     token->type == COLON_HAT ||
+     token->type == DOT_DOT))
   {
     jl_token_list_advance(tokens);
     jl_syntax_t *op = new_syntax();

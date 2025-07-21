@@ -27,6 +27,7 @@ typedef enum jl_token_type{
   LESS_EQUAL,
   EQUAL_EQUAL,
   COLON_HAT,
+  DOT_DOT,
   //literals
   STRING_WRAPPER,
   NUMBER,

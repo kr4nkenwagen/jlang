@@ -46,11 +46,6 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, stack_t *vm)
   }
   jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
-  if(left_hand_side->type != STRING)
-  {
-    printf("Illegal operation");
-    return NULL;
-  }
   if(syntax->token->type == COLON)
   {
     if(right_hand_side->type == INT)
@@ -83,6 +78,14 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, stack_t *vm)
       }
       return jl_substring(left_hand_side, position + 1, -1);
     }
+  }
+  else if(syntax->token->type == DOT_DOT)
+  {
+    if(left_hand_side->type == STRING || right_hand_side->type == STRING)
+    {
+      return jl_add(left_hand_side, right_hand_side);
+    }
+    printf("Illegal operation!\n");
   }
 }
 
@@ -211,6 +214,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm)
   {
     case COLON:
     case COLON_HAT:
+    case DOT_DOT:
       return eval_string_operation_expression(syntax, vm);
     case BANG:
       return eval_unary_expression(syntax, vm);

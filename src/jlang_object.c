@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
+#include <math.h>
  
 jl_object_t *jl_new_int(int value)
 {
@@ -583,6 +584,24 @@ jl_object_t *jl_less_equals(jl_object_t *a, jl_object_t *b)
   return NULL;
 }
 
+char *int_to_number(int num)
+{
+  size_t size = (int)log10(num) * sizeof(char) + 1;
+  char *word = malloc(size);
+  sprintf(word, "%d", num);
+  return word;
+}
+
+char *join_string(char *a, char *b)
+{
+  size_t a_size = strlen(a);
+  size_t b_size = strlen(b);
+  char *str = calloc(a_size + b_size + 1, sizeof(char));
+  strcpy(str, a);
+  strcpy(str + a_size, b);
+  return str;
+}
+
 jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
 {
   if(a == NULL || b == NULL)
@@ -599,6 +618,11 @@ jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
     {
       return jl_new_int(a->data.v_int + b->data.v_int);
     }
+    if(b->type == STRING)
+    {
+      char *num = int_to_number(a->data.v_int);
+      return jl_new_string(join_string(num, b->data.v_string));
+    }
   }
   if(a->type == FLOAT)
   {
@@ -611,16 +635,17 @@ jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
       return jl_new_float(a->data.v_float + b->data.v_float);
     }
   }
-  if(a->type == STRING && b->type == STRING)
+  if(a->type == STRING)
   {
-    size_t a_size = strlen(a->data.v_string);
-    size_t b_size = strlen(b->data.v_string);
-    char *str = calloc(a_size + b_size + 1, sizeof(char));
-    strcpy(str, a->data.v_string);
-    strcpy(str + a_size, b->data.v_string);
-    jl_object_t * obj = jl_new_string(str);
-    free(str);
-    return obj;
+    if(b->type == STRING)
+    {
+      return jl_new_string(join_string(a->data.v_string, b->data.v_string));
+    }
+    else if(b->type == INT)
+    {
+      char *num = int_to_number(b->data.v_int);
+      return jl_new_string(join_string(a->data.v_string, num));
+    }
   }
   return NULL;
 }
