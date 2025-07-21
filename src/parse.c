@@ -61,21 +61,40 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   return NULL;
 }
 
-jl_syntax_t *parse_unary(jl_token_list_t * tokens)
+jl_syntax_t *parse_string_operations(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_primary_expression(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && token->type == BANG)
+  if(token != NULL && (token->type == COLON || token->type == COLON_HAT))
   {
+    jl_token_list_advance(tokens);
     jl_syntax_t *op = new_syntax();
     if(op == NULL)
     {
       return NULL;
     }
-    jl_token_list_advance(tokens);
     op->token = token;
     op->left = left;
     op->right = parse_primary_expression(tokens);
+    left = op;
+  }
+  return left; 
+}
+jl_syntax_t *parse_unary(jl_token_list_t * tokens)
+{
+  jl_syntax_t *left = parse_string_operations(tokens);
+  jl_token_t *token = jl_token_list_peek(tokens, 0);
+  if(token != NULL && token->type == BANG)
+  {
+    jl_token_list_advance(tokens);
+    jl_syntax_t *op = new_syntax();
+    if(op == NULL)
+    {
+      return NULL;
+    }
+    op->token = token;
+    op->left = left;
+    op->right = parse_string_operations(tokens);
     left = op;
   }
   return left; 

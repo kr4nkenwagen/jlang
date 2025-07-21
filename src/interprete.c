@@ -38,6 +38,67 @@ jl_object_t *parse_number(jl_syntax_t *syntax)
   }
   return NULL;
 }
+jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, stack_t *vm)
+{
+  if(syntax == NULL)
+  {
+    return NULL;
+  }
+  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  if(left_hand_side->type != STRING)
+  {
+    printf("Illegal operation");
+    return NULL;
+  }
+  if(syntax->token->type == COLON)
+  {
+    if(right_hand_side->type == INT)
+    {
+      return jl_substring(left_hand_side, 0, right_hand_side->data.v_int);
+    }
+    if(right_hand_side->type == STRING)
+    {
+      int position = jl_position_of_first_instance(left_hand_side, right_hand_side->data.v_string);
+      if(position == -1)
+      {
+        return NULL;
+      }
+      return jl_substring(left_hand_side, 0, position);
+    }
+  }
+  else if(syntax->token->type == COLON_HAT)
+  {
+    if(right_hand_side->type == INT)
+    {
+      size_t size = jl_length(left_hand_side);
+      return jl_substring(left_hand_side, size - right_hand_side->data.v_int, right_hand_side->data.v_int);
+    }
+    if(right_hand_side->type == STRING)
+    {
+      int position = jl_position_of_last_instance(left_hand_side, right_hand_side->data.v_string);
+      if(position == -1)
+      {
+        return NULL;
+      }
+      return jl_substring(left_hand_side, position + 1, -1);
+    }
+  }
+}
+
+jl_object_t *eval_unary_expression(jl_syntax_t *syntax, stack_t *vm)
+{
+  if(syntax == NULL)
+  {
+    return NULL;
+  }
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  if(right_hand_side != NULL || right_hand_side->type == BOOLEAN)
+  {
+    return jl_new_bool(!right_hand_side->data.v_bool);
+  }
+  printf("Trying to perform illegal operation");
+}
 
 jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, stack_t *vm)
 {
@@ -148,6 +209,11 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm)
   }
   switch(syntax->token->type)
   {
+    case COLON:
+    case COLON_HAT:
+      return eval_string_operation_expression(syntax, vm);
+    case BANG:
+      return eval_unary_expression(syntax, vm);
     case EQUAL_EQUAL:
     case BANG_EQUAL:
     case GREATER_EQUAL:
@@ -171,6 +237,10 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm)
       return parse_number(syntax);
     case NIL:
       return jl_new_null();
+    case TRUE:
+      return jl_new_bool(true);
+    case FALSE:
+      return jl_new_bool(false);
     case PLUS:
     case MINUS:
     case STAR:

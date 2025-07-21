@@ -42,7 +42,10 @@ jl_object_t *jl_new_bool(bool value);
 
 void jl_object_free(jl_object_t *obj);
 
+jl_object_t *jl_substring(jl_object_t *obj, int start, int length);
 size_t jl_length(jl_object_t * obj);
+int jl_position_of_first_instance(jl_object_t *obj, char *instance);
+int jl_position_of_last_instance(jl_object_t *obj, char *instance);
 jl_object_t *jl_add(jl_object_t *a, jl_object_t *b);
 jl_object_t *jl_subtract(jl_object_t *a, jl_object_t *b);
 jl_object_t *jl_multiply(jl_object_t *target, jl_object_t *multiplier);

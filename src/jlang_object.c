@@ -130,6 +130,94 @@ size_t jl_length(jl_object_t *obj)
   return -1;
 }
 
+jl_object_t *jl_substring(jl_object_t *obj, int start, int length)
+{
+  if(obj == NULL || obj->type != STRING)
+  {
+    return NULL;
+  }
+  size_t size = jl_length(obj);
+  if(length == -1)
+  {
+    length = size - start;
+  }
+  if(start + length > size)
+  {
+    return NULL;
+  }
+  char *substring = malloc(sizeof(char) * length);
+  memcpy(substring, obj->data.v_string + start, length);
+  substring[length] = '\0';
+  return jl_new_string(substring);
+}
+
+int jl_position_of_first_instance(jl_object_t *obj, char *instance)
+{
+  if(obj == NULL)
+  {
+    return -1;
+  }
+  if(obj->type == STRING)
+  {
+    int position = 0;
+    size_t instance_size = strlen(instance);
+    size_t obj_size = jl_length(obj);
+    while(position + instance_size <= obj_size)
+    {
+      bool is_same = true;
+      for(int i = 0; i < instance_size; i++)
+      {
+        if(obj->data.v_string[position + i] != instance[i])
+        {
+          is_same = false;
+          break;
+        }
+      }
+      if(is_same)
+      {
+        return position;
+      }
+      position++;
+    }
+  }
+  return -1;
+}
+
+
+int jl_position_of_last_instance(jl_object_t *obj, char *instance)
+{
+  if(obj == NULL)
+  {
+    return -1;
+  }
+  if(obj->type == STRING)
+  {
+    int position = 0;
+    size_t instance_size = strlen(instance);
+    size_t obj_size = jl_length(obj);
+    int instance_position = -1;
+    while(position + instance_size <= obj_size)
+    {
+      bool is_same = true;
+      for(int i = 0; i < instance_size; i++)
+      {
+        if(obj->data.v_string[position + i] != instance[i])
+        {
+          is_same = false;
+          break;
+        }
+      }
+      if(is_same)
+      {
+        instance_position = position;
+      }
+      position++;
+    }
+    return instance_position;
+  }
+  return -1;
+}
+
 jl_object_t *jl_equals(jl_object_t *a, jl_object_t *b)
 {
   if(a == NULL || b == NULL)

@@ -331,6 +331,17 @@ jl_token_list_t *scan(jl_source_code_t *src)
       case ',':
         jl_token_list_add(token_list,  jl_token_new(COMMA));
       break;
+      case ':':
+        if(jl_source_code_peek(src, 1) == '^')
+        {
+          jl_token_list_add(token_list, jl_token_new(COLON_HAT));
+          jl_source_code_advance(src);
+        }
+        else 
+        {
+          jl_token_list_add(token_list, jl_token_new(COLON));
+        }
+      break;
       case '.':
         if(is_number(jl_source_code_peek(src, 1)))
         {
@@ -368,14 +379,14 @@ jl_token_list_t *scan(jl_source_code_t *src)
       break; 
       case '!':
        if(jl_source_code_peek(src, 1) == '=')
-        {
-          jl_token_list_add(token_list, jl_token_new(BANG_EQUAL));
-          jl_source_code_advance(src);
-        }
-        else 
-        {
-          jl_token_list_add(token_list, jl_token_new(BANG)); 
-        }
+      {
+        jl_token_list_add(token_list, jl_token_new(BANG_EQUAL));
+        jl_source_code_advance(src);
+      }
+      else 
+      {
+        jl_token_list_add(token_list, jl_token_new(BANG)); 
+      }
       break;
       case '=':
         if(jl_source_code_peek(src, 1) == '=')
