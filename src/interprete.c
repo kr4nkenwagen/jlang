@@ -8,9 +8,9 @@
 #include "stack.h"
 
 
-jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm);
+jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm);
 
-jl_object_t *interprete(jl_program_t *program, stack_t *vm)
+jl_object_t *interprete(jl_program_t *program, vm_t *vm)
 {
   if(program == NULL)
   {
@@ -38,7 +38,7 @@ jl_object_t *parse_number(jl_syntax_t *syntax)
   }
   return NULL;
 }
-jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, stack_t *vm)
+jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
   {
@@ -89,7 +89,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, stack_t *vm)
   }
 }
 
-jl_object_t *eval_unary_expression(jl_syntax_t *syntax, stack_t *vm)
+jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
   {
@@ -103,7 +103,7 @@ jl_object_t *eval_unary_expression(jl_syntax_t *syntax, stack_t *vm)
   printf("Trying to perform illegal operation");
 }
 
-jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, stack_t *vm)
+jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
   {
@@ -138,7 +138,7 @@ jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, stack_t *vm)
   return NULL;
 }
 
-jl_object_t *eval_binary_expression(jl_syntax_t *syntax, stack_t *vm)
+jl_object_t *eval_binary_expression(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
   {
@@ -169,7 +169,7 @@ jl_object_t *eval_binary_expression(jl_syntax_t *syntax, stack_t *vm)
   return NULL;
 }
 
-void eval_assignment_expression(jl_syntax_t *syntax, stack_t *vm)
+void eval_assignment_expression(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
   {
@@ -180,7 +180,7 @@ void eval_assignment_expression(jl_syntax_t *syntax, stack_t *vm)
   jl_assign(left_hand_side, right_hand_side);
 }
 
-void eval_variable_declarations(jl_syntax_t *syntax, stack_t *vm)
+void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
   {
@@ -190,20 +190,24 @@ void eval_variable_declarations(jl_syntax_t *syntax, stack_t *vm)
   syntax = syntax->left;
   while(syntax != NULL)
   {
-    if(jl_stack_get(vm, syntax->token->literal) != NULL)
+    if(jl_stack_get(vm_curr_frame(vm), syntax->token->literal) != NULL)
     {
       printf("Variable '%s' is already declared", syntax->token->literal);
       return;
     }
     jl_object_t *obj = eval_primary_expression(syntax->value, vm);
     obj->name = syntax->token->literal;
-    stack_push(vm, obj);
+    stack_push(vm_curr_frame(vm), obj);
     syntax = syntax->left; 
   }
   
 }
+void eval_while(jl_syntax_t *syntax, vm_t *vm)
+{
+  
+}
 
-jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm)
+jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
 {
 
   if(syntax == NULL)
@@ -212,6 +216,8 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm)
   }
   switch(syntax->token->type)
   {
+    case WHILE:
+      eval_while(syntax, vm);
     case COLON:
     case COLON_HAT:
     case DOT_DOT:
@@ -233,7 +239,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, stack_t *vm)
       eval_variable_declarations(syntax, vm);
       return NULL;
     case IDENTIFIER:
-      jl_object_t *obj = jl_stack_get(vm, syntax->token->literal);
+      jl_object_t *obj = jl_stack_get(vm_curr_frame(vm), syntax->token->literal);
       return obj;
     case STRING:
       return jl_new_string(syntax->token->literal);

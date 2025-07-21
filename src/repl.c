@@ -97,10 +97,8 @@ char *user_input()
 void repl()
 {
   printf("%s[%s] - %s\nrepl\n", APPLICATION_NAME, VERSION, AUTHOR);
-  stack_t * vm = stack_new(8);
-  jl_object_t *jon = jl_new_int(1337);
-  jon->name = "jon";
-  stack_push(vm, jon);
+  vm_t* vm = vm_new();
+  vm_push_frame(vm, stack_new(8));
   while(true)
   {
     putchar('>');
@@ -112,7 +110,7 @@ void repl()
     jl_source_code_t *src = jl_source_code_from_repl(input);
     jl_token_list_t *tokens = scan(src);
     jl_program_t *program = parse(tokens);
-    debug(tokens, program);
+//    debug(tokens, program);
     interprete(program, vm);
   }
 }
