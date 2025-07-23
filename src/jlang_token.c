@@ -1,4 +1,5 @@
 #include <string.h>
+#include "jlang_source_code.h"
 #include "jlang_token.h"
 
 jl_token_list_t *jl_token_list_new()
@@ -59,7 +60,7 @@ jl_token_t *jl_token_list_peek(jl_token_list_t *list, int distance)
   return list->list[list->index + distance];
 }
 
-jl_token_t *jl_token_new(jl_token_type_t type)
+jl_token_t *jl_token_new(jl_source_code_t *src, jl_token_type_t type)
 {
   jl_token_t *token = malloc(sizeof(jl_token_t));
   if(token == NULL)
@@ -67,6 +68,11 @@ jl_token_t *jl_token_new(jl_token_type_t type)
     return NULL;
   }
   token->type = type;
+  if(src != NULL)
+  {
+    token->line = src->line;
+    token->column = src->column;
+  }
 
   return token;
 }

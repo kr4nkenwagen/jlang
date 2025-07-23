@@ -81,8 +81,15 @@ int is_end_of_word(char c)
   {
     case '\0':
     case '\n':
+    case '\t':
     case ' ':
     case ';':
+    case '[':
+    case ']':
+    case '(':
+    case ')':
+    case '{':
+    case '}':
       return 1;
   }
   return 0;
@@ -93,7 +100,7 @@ char *consume_word(jl_source_code_t * src)
   size_t size = 32;
   int i = 0;
   char * word = malloc(sizeof(char) * size);
-  for(; is_end_of_word(jl_source_code_peek(src, 0)) == 0; i++)
+  for(; is_end_of_word(jl_source_code_peek(src, 1)) == 0; i++)
   {
     if(i - 1 == size)
     {
@@ -106,6 +113,7 @@ char *consume_word(jl_source_code_t * src)
     word[i] = jl_source_code_peek(src, 0);
     jl_source_code_advance(src);
   }
+  word[i++] = jl_source_code_peek(src, 0);
   word[i] = '\0';
   return word;
 }
@@ -174,7 +182,7 @@ jl_token_t *consume_identifier(jl_source_code_t *src)
   {
     return NULL;
   }
-  jl_token_t *token = jl_token_new(IDENTIFIER);
+  jl_token_t *token = jl_token_new(src, IDENTIFIER);
   token->literal = consume_word(src);
   return token;
 }
@@ -193,111 +201,111 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     if(is_next_word_match(src, "and"))
     {
       consume_word(src);
-      return jl_token_new(AND);
+      return jl_token_new(src, AND);
     }
   case 'c':
   case 'C':
     if(is_next_word_match(src, "class"))
     {
       consume_word(src);
-      return jl_token_new(CLASS);
+      return jl_token_new(src, CLASS);
     }
     else if(is_next_word_match(src, "const"))
     {
         consume_word(src);
-        return jl_token_new(CONST);
+        return jl_token_new(src, CONST);
       }
   case 'e':
   case 'E':
     if(is_next_word_match(src, "else"))
     {
       consume_word(src);
-      return jl_token_new(ELSE);
+      return jl_token_new(src, ELSE);
     }
   case 'f':
   case 'F':
     if(is_next_word_match(src, "for"))
     {
       consume_word(src);
-      return jl_token_new(FOR);
+      return jl_token_new(src, FOR);
     }
     else if(is_next_word_match(src, "false"))
     {
       consume_word(src);
-      return jl_token_new(FALSE);
+      return jl_token_new(src, FALSE);
     }
     else if(is_next_word_match(src, "function"))
     {
       consume_word(src);
-      return jl_token_new(FUNCTION);
+      return jl_token_new(src, FUNCTION);
     }
   case 'i':
   case 'I':
     if(is_next_word_match(src, "if"))
     {
       consume_word(src);
-      return jl_token_new(IF);
+      return jl_token_new(src, IF);
     }
   case 'n':
   case 'N':
     if(is_next_word_match(src, "null"))
     {
       consume_word(src);
-      return jl_token_new(NIL);
+      return jl_token_new(src, NIL);
     }
   case 'o':
   case 'O':
     if(is_next_word_match(src, "or"))
     {
       consume_word(src);
-      return jl_token_new(OR);
+      return jl_token_new(src, OR);
     }
   case 'p':
   case 'P':
     if(is_next_word_match(src, "print"))
     {
       consume_word(src);
-      return jl_token_new(PRINT);
+      return jl_token_new(src, PRINT);
     }
   case 'r':
   case 'R':
     if(is_next_word_match(src, "return"))
     {
       consume_word(src);
-      return jl_token_new(RETURN);
+      return jl_token_new(src, RETURN);
     }
   case 's':
   case 'S':
     if(is_next_word_match(src, "super"))
     {
       consume_word(src);
-      return jl_token_new(SUPER);
+      return jl_token_new(src, SUPER);
     }
   case 't':
   case 'T':
     if(is_next_word_match(src, "this"))
     {
       consume_word(src);
-      return jl_token_new(THIS);
+      return jl_token_new(src, THIS);
     }
     else if(is_next_word_match(src, "true"))
     {
       consume_word(src);
-      return jl_token_new(TRUE);
+      return jl_token_new(src, TRUE);
     }
   case 'v':
   case 'V':
     if(is_next_word_match(src, "var"))
     {
       consume_word(src);
-      return jl_token_new(VAR);
+      return jl_token_new(src, VAR);
     }
   case 'w':
   case 'W':
     if(is_next_word_match(src, "while"))
     {
       consume_word(src);
-      return jl_token_new(WHILE);
+      return jl_token_new(src, WHILE);
     }
   }
   return NULL;
@@ -316,112 +324,118 @@ jl_token_list_t *scan(jl_source_code_t *src)
     switch(jl_source_code_advance(src))
     {
       case '(':
-        jl_token_list_add(token_list,  jl_token_new(LEFT_PAREN));
+        jl_token_list_add(token_list,  jl_token_new(src, LEFT_PAREN));
       break;
       case ')':
-        jl_token_list_add(token_list,  jl_token_new(RIGHT_PAREN));
+        jl_token_list_add(token_list,  jl_token_new(src, RIGHT_PAREN));
       break;
       case '{':
-        jl_token_list_add(token_list,  jl_token_new(LEFT_BRACE));
+        jl_token_list_add(token_list,  jl_token_new(src, LEFT_BRACE));
       break;
       case '}':
-        jl_token_list_add(token_list,  jl_token_new(RIGHT_BRACE));
+        jl_token_list_add(token_list,  jl_token_new(src, RIGHT_BRACE));
+      break;
+      case '[':
+        jl_token_list_add(token_list, jl_token_new(src, LEFT_BRACKET));
+      break;
+      case ']':
+        jl_token_list_add(token_list, jl_token_new(src, RIGHT_BRACKET));
       break;
       case ',':
-        jl_token_list_add(token_list,  jl_token_new(COMMA));
+        jl_token_list_add(token_list,  jl_token_new(src, COMMA));
       break;
       case ':':
         if(jl_source_code_peek(src, 1) == '^')
         {
-          jl_token_list_add(token_list, jl_token_new(COLON_HAT));
+          jl_token_list_add(token_list, jl_token_new(src, COLON_HAT));
           jl_source_code_advance(src);
         }
         else 
         {
-          jl_token_list_add(token_list, jl_token_new(COLON));
+          jl_token_list_add(token_list, jl_token_new(src, COLON));
         }
       break;
       case '.':
         if(is_number(jl_source_code_peek(src, 1)))
         {
-          jl_token_t *token_number = jl_token_new(NUMBER);
+          jl_token_t *token_number = jl_token_new(src, NUMBER);
           token_number->literal = consume_number(src);
           jl_token_list_add(token_list, token_number);
         }
         else if(jl_source_code_peek(src, 1) == '.')
         {
-          jl_token_list_add(token_list, jl_token_new(DOT_DOT));
+          jl_token_list_add(token_list, jl_token_new(src, DOT_DOT));
           jl_source_code_advance(src);
         }
         else 
         {
-          jl_token_list_add(token_list,  jl_token_new(DOT));
+          jl_token_list_add(token_list,  jl_token_new(src, DOT));
         }
       break;
       case '-':
-        jl_token_list_add(token_list,  jl_token_new(MINUS));
+        jl_token_list_add(token_list,  jl_token_new(src, MINUS));
       break;
       case '+':
-        jl_token_list_add(token_list,  jl_token_new(PLUS));
+        jl_token_list_add(token_list,  jl_token_new(src, PLUS));
       break;
-        jl_token_list_add(token_list,  jl_token_new(SEMICOLON));
+        jl_token_list_add(token_list,  jl_token_new(src, SEMICOLON));
      break;
       case '%':
-        jl_token_list_add(token_list,  jl_token_new(MODULUS));
+        jl_token_list_add(token_list,  jl_token_new(src, MODULUS));
       break;
       case '/':
-        jl_token_list_add(token_list,  jl_token_new(SLASH));
+        jl_token_list_add(token_list,  jl_token_new(src, SLASH));
       break;
       case '*':
-        jl_token_list_add(token_list,  jl_token_new(STAR));
+        jl_token_list_add(token_list,  jl_token_new(src, STAR));
       break;
       case '\'':
       case '"':
-        jl_token_t *token_string = jl_token_new(STRING);
+        jl_token_t *token_string = jl_token_new(src, STRING);
         token_string->literal = consume_string(src);
         jl_token_list_add(token_list, token_string);
       break; 
       case '!':
        if(jl_source_code_peek(src, 1) == '=')
       {
-        jl_token_list_add(token_list, jl_token_new(BANG_EQUAL));
+        jl_token_list_add(token_list, jl_token_new(src, BANG_EQUAL));
         jl_source_code_advance(src);
       }
       else 
       {
-        jl_token_list_add(token_list, jl_token_new(BANG)); 
+        jl_token_list_add(token_list, jl_token_new(src, BANG)); 
       }
       break;
       case '=':
         if(jl_source_code_peek(src, 1) == '=')
         {
-          jl_token_list_add(token_list, jl_token_new(EQUAL_EQUAL));
+          jl_token_list_add(token_list, jl_token_new(src, EQUAL_EQUAL));
           jl_source_code_advance(src); 
         }
         else {
-          jl_token_list_add(token_list, jl_token_new(EQUAL));
+          jl_token_list_add(token_list, jl_token_new(src, EQUAL));
         }
       break;
       case '>':
         if(jl_source_code_peek(src, 1) == '=')
         {
-          jl_token_list_add(token_list, jl_token_new(GREATER_EQUAL));
+          jl_token_list_add(token_list, jl_token_new(src, GREATER_EQUAL));
           jl_source_code_advance(src);
         }
         else 
         {
-          jl_token_list_add(token_list, jl_token_new(GREATER));  
+          jl_token_list_add(token_list, jl_token_new(src, GREATER));  
         }
       break;
       case '<':
         if(jl_source_code_peek(src, 1) == '=')
         {
-          jl_token_list_add(token_list, jl_token_new(LESS_EQUAL));
+          jl_token_list_add(token_list, jl_token_new(src, LESS_EQUAL));
           jl_source_code_advance(src);
         }
         else 
         {
-          jl_token_list_add(token_list, jl_token_new(LESS));
+          jl_token_list_add(token_list, jl_token_new(src, LESS));
         }
       break;
       case '0':
@@ -434,13 +448,13 @@ jl_token_list_t *scan(jl_source_code_t *src)
       case '7':
       case '8':
       case '9':
-        jl_token_t *token_number = jl_token_new(NUMBER);
+        jl_token_t *token_number = jl_token_new(src, NUMBER);
         token_number->literal = consume_number(src);
         jl_token_list_add(token_list, token_number);
       break;
       case '\n':
       case ';':
-        jl_token_list_add(token_list, jl_token_new(TERMINATOR));
+        jl_token_list_add(token_list, jl_token_new(src, TERMINATOR));
         break;
       case '\t':
       case ' ':
@@ -464,8 +478,8 @@ jl_token_list_t *scan(jl_source_code_t *src)
   }
   if(token_list->count > 0 && jl_token_list_peek(token_list, 0)->type != TERMINATOR)
   {
-    jl_token_list_add(token_list, jl_token_new(TERMINATOR));
+    jl_token_list_add(token_list, jl_token_new(src, TERMINATOR));
   }
-  jl_token_list_add(token_list, jl_token_new(END_OF_FILE));
+  jl_token_list_add(token_list, jl_token_new(src, END_OF_FILE));
   return token_list;
 }

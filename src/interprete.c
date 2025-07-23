@@ -7,7 +7,6 @@
 #include "vm.h"
 #include "stack.h"
 
-
 jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm);
 
 jl_object_t *interprete(jl_program_t *program, vm_t *vm)
@@ -200,22 +199,71 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
     stack_push(vm_curr_frame(vm), obj);
     syntax = syntax->left; 
   }
-  
 }
+
+jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm)
+{
+  if(syntax == NULL)
+  {
+    return NULL;
+  }
+  jl_object_t *arr = jl_new_array();
+  syntax = syntax->left;
+  while(syntax != NULL)
+  {
+    jl_object_t *obj = eval_primary_expression(syntax, vm);
+    jl_array_set(arr, arr->data.v_array->count, obj);
+    syntax = syntax->left; 
+  }
+  
+  return arr;
+}
+
 void eval_while(jl_syntax_t *syntax, vm_t *vm)
 {
-  
+  if(syntax == NULL)
+  {
+    return;
+  }
+
+}
+
+jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
+{
+  jl_object_t *obj = jl_stack_get(vm_curr_frame(vm), syntax->token->literal);
+  if(obj->type != ARRAY)
+  {
+    return obj;
+  }
+  if(syntax->right == NULL || syntax->right->token->type != LEFT_BRACKET)
+  {
+    return obj;
+  }
+  jl_object_t * index = eval_array_declaration(syntax->right, vm);
+  if(index == NULL || index->data.v_array->count != 1)
+  {
+    printf("expected array index");
+    return NULL;
+  }
+  index = jl_array_get(index, 0);
+  if(index->type != INT)
+  {
+    printf("Index is not an integer number");
+    return NULL;
+  }
+  return jl_array_get(obj, index->data.v_int);
 }
 
 jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
 {
-
   if(syntax == NULL)
   {
     return NULL;
   }
   switch(syntax->token->type)
   {
+    case LEFT_BRACKET:
+      return eval_array_declaration(syntax, vm);
     case WHILE:
       eval_while(syntax, vm);
     case COLON:
@@ -239,8 +287,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
       eval_variable_declarations(syntax, vm);
       return NULL;
     case IDENTIFIER:
-      jl_object_t *obj = jl_stack_get(vm_curr_frame(vm), syntax->token->literal);
-      return obj;
+      return eval_identifier(syntax, vm);
     case STRING:
       return jl_new_string(syntax->token->literal);
     case NUMBER:

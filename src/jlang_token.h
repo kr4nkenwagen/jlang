@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include "jlang_source_code.h"
 
 typedef enum jl_token_type{
-  //single char tokens
   LEFT_PAREN,
   RIGHT_PAREN,
   LEFT_BRACE,
@@ -21,17 +21,14 @@ typedef enum jl_token_type{
   MODULUS,
   TERMINATOR,
   COLON,
-  //two char tokens
   BANG_EQUAL,
   GREATER_EQUAL,
   LESS_EQUAL,
   EQUAL_EQUAL,
   COLON_HAT,
   DOT_DOT,
-  //literals
   STRING_WRAPPER,
   NUMBER,
-  //keywords
   AND,
   CLASS,
   ELSE,
@@ -50,13 +47,15 @@ typedef enum jl_token_type{
   WHILE,
   END_OF_FILE,
   IDENTIFIER,
-  CONST
+  CONST,
+  LEFT_BRACKET,
+  RIGHT_BRACKET
 }jl_token_type_t;
 
 typedef struct jl_token {
   jl_token_type_t type;
-  char *lexeme;
   char *literal;
+  int column;
   int line;
 }jl_token_t;
 
@@ -73,5 +72,5 @@ void jl_token_list_add(jl_token_list_t *list, jl_token_t *token);
 jl_token_t *jl_token_list_advance(jl_token_list_t *list);
 jl_token_t *jl_token_list_peek(jl_token_list_t *list, int distance);
 
-jl_token_t *jl_token_new(jl_token_type_t type);
+jl_token_t *jl_token_new(jl_source_code_t *src, jl_token_type_t type);
 

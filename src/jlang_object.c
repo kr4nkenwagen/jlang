@@ -33,7 +33,6 @@ jl_object_t *jl_new_bool(bool value)
   return obj;
 }
 
-
 jl_object_t *jl_new_float(float value)
 {
   jl_object_t *obj = malloc(sizeof(jl_object_t));
@@ -68,14 +67,19 @@ jl_object_t *jl_new_string(char *value)
   return obj;
 }
 
-jl_object_t *new_array(size_t size)
+jl_object_t *jl_new_array()
 {
   jl_object_t *obj = malloc(sizeof(jl_object_t));
   if(obj == NULL)
   {
     return NULL;
   }
-  obj->data.v_array->elements = malloc(sizeof(jl_object_t) * size);
+  obj->data.v_array = malloc(sizeof(jl_array_t));
+  if(obj->data.v_array == NULL)
+  {
+    return NULL;
+  }
+   obj->data.v_array->elements = malloc(sizeof(jl_object_t *) * 8);
   if(obj->data.v_array->elements == NULL)
   {
     jl_object_free(obj);
@@ -83,8 +87,25 @@ jl_object_t *new_array(size_t size)
   }
   obj->is_marked = false;
   obj->type = ARRAY; 
+  obj->data.v_array->count = 0;
   obj->refcount = 1;
-  obj->data.v_array->size = size;
+  obj->data.v_array->size = 8;
+  return obj;
+}
+
+jl_object_t *jl_new_vector(jl_object_t *x, jl_object_t *y, jl_object_t *z)
+{
+  jl_object_t *obj = malloc(sizeof(jl_object_t));
+  if(obj == NULL)
+  {
+    return NULL;
+  }
+  obj->is_marked = false;
+  obj->type = VECTOR;
+  obj->refcount = 1;
+  obj->data.v_vector->x = x;
+  obj->data.v_vector->y = y;
+  obj->data.v_vector->z = z;
   return obj;
 }
 
@@ -931,21 +952,34 @@ void ref_inc(jl_object_t *obj)
   obj->refcount++;
 }
 
-void jl_array_set(jl_object_t *array, size_t index, jl_object_t *obj)
+void jl_array_set(jl_object_t *arr, int index, jl_object_t *obj)
 {
    
-  if(array->data.v_array->size == 0 || index >= array->data.v_array->size)
+  while(arr->data.v_array->size <= (size_t)index)
   {
-    return;
-  }
-  if(array->data.v_array->elements[index] != NULL)
+    void **resized = jl_double_array_size(
+      arr->data.v_array->elements, 
+      arr->data.v_array->size
+    );
+    if(resized == NULL)
+    {
+      return;
+    }
+    arr->data.v_array->elements = (jl_object_t **)resized;
+    arr->data.v_array->size *= 2;
+  } 
+  while(arr->data.v_array->count < index)
   {
-    ref_dec(array->data.v_array->elements[index]);
+    arr->data.v_array->elements[arr->data.v_array->count++] = jl_new_null();
   }
-  array->data.v_array->elements[index] = obj;
+  arr->data.v_array->elements[index] = obj;
+  if(arr->data.v_array->count == index)
+  {
+    arr->data.v_array->count++;
+  }
 }
 
-jl_object_t *jl_array_get(jl_object_t *array, size_t index)
+jl_object_t *jl_array_get(jl_object_t *array, int index)
 {
   if(array->data.v_array->size == 0 || index >= array->data.v_array->size)
   {

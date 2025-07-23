@@ -6,6 +6,7 @@
 #include "jlang_object.h"
 
 jl_syntax_t *parse_expression(jl_token_list_t *tokens);
+jl_syntax_t *parse_statement(jl_token_list_t *tokens);
 
 jl_syntax_t *new_syntax()
 {
@@ -19,6 +20,55 @@ jl_syntax_t *new_syntax()
   return syntax;
 }
 
+jl_syntax_t *parse_array_declaration(jl_token_list_t *tokens)
+{
+  jl_syntax_t *declaration = new_syntax();
+  declaration->token = jl_token_list_peek(tokens, 0);
+  jl_token_t *token = jl_token_list_advance(tokens);
+  jl_syntax_t *prev_syntax = declaration;
+  do
+  {
+    if(token->type == COMMA)
+    {
+      token = jl_token_list_advance(tokens);
+    }
+    if(!(token->type == IDENTIFIER || token->type == NUMBER || token->type == STRING))
+    {
+      printf("expected IDENTIFIER, NUMBER or STRING.");
+      return NULL;
+    }
+    jl_syntax_t *syntax = new_syntax();
+    syntax->token = token;
+    token = jl_token_list_peek(tokens, 0);
+    prev_syntax->left = syntax;
+    prev_syntax = syntax;
+    token = jl_token_list_advance(tokens);
+  } while(token->type == COMMA);
+  if(token->type != RIGHT_BRACKET)
+  {
+    printf("bracket not closed");
+    return NULL;
+  }
+  jl_token_list_advance(tokens);
+  return declaration;
+}
+
+jl_syntax_t *parse_identifier(jl_token_list_t *tokens)
+{
+  jl_syntax_t *syntax = new_syntax();
+  syntax->token = jl_token_list_peek(tokens, 0);
+  if(syntax->token->type != IDENTIFIER)
+  {
+    return NULL;
+  }
+  jl_token_list_advance(tokens);
+  if(jl_token_list_peek(tokens, 0)->type == LEFT_BRACKET)
+  {
+    syntax->right = parse_array_declaration(tokens);
+  }
+  return syntax;
+}
+
 jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
 {
   jl_token_t *token = jl_token_list_peek(tokens, 0);
@@ -29,7 +79,11 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   jl_syntax_t *syntax = new_syntax();
   switch(token->type)
   {
+    case LEFT_BRACKET:
+      free(syntax);
+      return parse_array_declaration(tokens);
     case IDENTIFIER: 
+      return parse_identifier(tokens);
     case STRING:
     case NUMBER:
     case FALSE:
@@ -204,7 +258,6 @@ jl_syntax_t *parse_assignment(jl_token_list_t * tokens)
   jl_token_t *token = jl_token_list_peek(tokens, 0);
   if(token != NULL && token->type == EQUAL)
   {
-    printf("%i\n", token->type);
     jl_syntax_t *op = new_syntax();
     op->token = jl_token_list_advance(tokens);
     if(op->token == NULL)
@@ -259,13 +312,35 @@ jl_syntax_t *parse_variable_declarations(jl_token_list_t *tokens)
         return NULL;
       }
       syntax->value = new_syntax();
-      syntax->value->token = jl_token_new(NIL);
+      syntax->value->token = jl_token_new(NULL, NIL);
     }
     token = jl_token_list_peek(tokens, 0);
     prev_syntax->left = syntax;
     prev_syntax = syntax;
   } while(token->type == COMMA);
   return declaration;
+}
+
+jl_syntax_t  *parse_if(jl_token_list_t * tokens)
+{
+  return NULL;
+  jl_token_list_advance(tokens);
+  jl_syntax_t *parent = new_syntax();
+  parent->token = jl_token_list_peek(tokens, 0);
+  jl_token_list_advance(tokens);
+  if (jl_token_list_peek(tokens, 0)->type != LEFT_PAREN)
+  {
+    printf("Expected '(' after if. Got %i\n", jl_token_list_peek(tokens, 0)->type);
+    return NULL;
+  }
+  parent->value = parse_expression(tokens);
+  if(jl_token_list_peek(tokens, 0)->type != LEFT_BRACE)
+  {
+    printf("Expected '{'\n");
+    return NULL;
+  }
+  jl_syntax_t *body = parse_statement(tokens);
+  return parent; 
 }
 
 jl_syntax_t *parse_statement(jl_token_list_t *tokens)
@@ -275,6 +350,8 @@ jl_syntax_t *parse_statement(jl_token_list_t *tokens)
     case VAR:
     case CONST:
       return parse_variable_declarations(tokens);
+    case IF:
+      return parse_if(tokens);
     default:
       return parse_expression(tokens);
   }

@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h> 
 #include "jlang_object.h"
 
 int jl_string_length(jl_object_t *target)
@@ -107,6 +108,8 @@ void jl_modulus_string(jl_object_t *target, jl_object_t *modulus)
   target->data.v_string[new_size] = '\0';
 }
 
+void print_array_content(jl_object_t *arr);
+
 void jl_print_object(jl_object_t *target)
 {
   if(target == NULL)
@@ -133,5 +136,36 @@ void jl_print_object(jl_object_t *target)
         break;
       }
       printf("Object: false\n", target->data.v_string);
+    break;
+    case ARRAY:
+      printf("Object: array(%d)\n", target->data.v_array->count);
+      print_array_content(target);
+    break;
   }
+}
+
+void print_array_content(jl_object_t *arr)
+{
+  for(int i = 0; i < arr->data.v_array->count; i++)
+  {
+    printf("  [%i] ", i);
+    jl_print_object(arr->data.v_array->elements[i]);
+  }
+}
+
+void **jl_double_array_size(void **arr, size_t curr_size)
+{
+  if(arr == NULL)
+  {
+    return NULL;
+  }
+  size_t new_size = curr_size * 2;
+  void **new_arr = malloc(new_size * sizeof(void *));
+  if(new_arr == NULL)
+  {
+    return NULL;
+  }
+  memcpy(new_arr, arr, curr_size * sizeof(void *));
+  free(arr);
+  return new_arr;
 }
