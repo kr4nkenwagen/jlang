@@ -231,6 +231,10 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
 jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
 {
   jl_object_t *obj = jl_stack_get(vm_curr_frame(vm), syntax->token->literal);
+  if(obj == NULL)
+  {
+    return NULL;
+  }
   if(obj->type != ARRAY)
   {
     return obj;

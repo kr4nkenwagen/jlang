@@ -34,6 +34,11 @@ const boolean = true;
 var array = ["Hello World", 8];
 array[2] = "I forgot to add this.";
 ```
+arrays can be declared as empty array.
+
+```
+const array = [];
+```
 # Types
 
 jLang supports 6 data types.
@@ -55,7 +60,7 @@ Statements can be terminated with newline and with ';'.
 
 ```
 const str = "Hello ", ing = "World";
-const string = str + str;
+const string = str + ing;
 
 ```
 
@@ -105,3 +110,27 @@ const str = "Hello World";
 const string = str % 2
 ```
 Variable string will have value "d".
+
+```
+const str = "Hello World";
+const string = str:5;
+```
+Variable string will have value "Hello". This returns start of string up to the supplied index.
+
+```
+const str = "Hello World";
+const string = str:^5;
+```
+
+Variable string will have value "World". This returns from supplied index to end of string.
+```
+const str = "Hello World";
+const string = str:"d";
+```
+Variable string will have value "Worl". This returns string from start to first instance of the supplied string.
+
+```
+const str = "Hello World";
+const string = str:^"W"
+```
+Variable string will have value "orld". This will return from the last instance of supplied string to the end of string.

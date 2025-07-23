@@ -90,6 +90,7 @@ int is_end_of_word(char c)
     case ')':
     case '{':
     case '}':
+    case ':':
       return 1;
   }
   return 0;
