@@ -221,6 +221,12 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     if(is_next_word_match(src, "else"))
     {
       consume_word(src);
+      if(tolower(jl_source_code_peek(src, 2)) == 'i' && tolower(jl_source_code_peek(src, 3)) == 'f');
+      {
+        jl_source_code_advance(src);
+        consume_word(src);
+        return jl_token_new(src, ELSE_IF);
+      }
       return jl_token_new(src, ELSE);
     }
   case 'f':
@@ -245,6 +251,7 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     if(is_next_word_match(src, "if"))
     {
       consume_word(src);
+      
       return jl_token_new(src, IF);
     }
   case 'n':
@@ -334,7 +341,8 @@ jl_token_list_t *scan(jl_source_code_t *src)
         jl_token_list_add(token_list,  jl_token_new(src, LEFT_BRACE));
       break;
       case '}':
-        jl_token_list_add(token_list,  jl_token_new(src, RIGHT_BRACE));
+        jl_token_list_add(token_list, jl_token_new(src, TERMINATOR));
+        jl_token_list_add(token_list, jl_token_new(src, RIGHT_BRACE));
       break;
       case '[':
         jl_token_list_add(token_list, jl_token_new(src, LEFT_BRACKET));

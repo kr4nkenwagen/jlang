@@ -49,7 +49,8 @@ typedef enum jl_token_type{
   IDENTIFIER,
   CONST,
   LEFT_BRACKET,
-  RIGHT_BRACKET
+  RIGHT_BRACKET,
+  ELSE_IF
 }jl_token_type_t;
 
 typedef struct jl_token {

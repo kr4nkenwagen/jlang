@@ -21,7 +21,7 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
   }
 }
 
-jl_object_t *parse_number(jl_syntax_t *syntax)
+jl_object_t *eval_number(jl_syntax_t *syntax)
 {
   if(syntax == NULL)
   {
@@ -258,6 +258,24 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
   return jl_array_get(obj, index->data.v_int);
 }
 
+void eval_if(jl_syntax_t *syntax, vm_t *vm)
+{
+
+  while(
+    syntax != NULL && syntax->token->type == IF || 
+    syntax != NULL && syntax->token->type == ELSE_IF || 
+    syntax != NULL && syntax->token->type == ELSE)
+  {
+    jl_object_t *condition = eval_primary_expression(syntax->value, vm);
+    if(syntax->token->type == ELSE || condition->data.v_bool == true)
+    {
+      interprete((jl_program_t*)syntax->branch, vm);
+      return;
+    }
+    syntax = syntax->right;
+  }
+}
+
 jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
@@ -266,6 +284,9 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   switch(syntax->token->type)
   {
+    case IF:
+      eval_if(syntax, vm);
+      return NULL;
     case LEFT_BRACKET:
       return eval_array_declaration(syntax, vm);
     case WHILE:
@@ -295,7 +316,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
     case STRING:
       return jl_new_string(syntax->token->literal);
     case NUMBER:
-      return parse_number(syntax);
+      return eval_number(syntax);
     case NIL:
       return jl_new_null();
     case TRUE:
