@@ -111,7 +111,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       return NULL;
   }
   free(syntax);
-  err_unexpected_syntax(token);
+  //err_unexpected_syntax(token);
   return NULL;
 }
 
@@ -409,10 +409,88 @@ jl_syntax_t *parse_while(jl_token_list_t *tokens)
   return syntax;
 }
 
+jl_program_t *parse_function_args(jl_token_list_t *tokens)
+{
+  jl_program_t *args = jl_new_program();
+  if(jl_token_list_peek(tokens, 0)->type != LEFT_PAREN)
+  {
+    err_unexpected_syntax(jl_token_list_peek(tokens, 0));
+  }
+  jl_token_t *token = jl_token_list_advance(tokens);
+  do
+  {
+    if(token->type == COMMA)
+    {
+      token = jl_token_list_advance(tokens);
+    }
+    if(token->type != VAR && token->type != CONST)
+    {
+      err_unexpected_syntax(token);
+      return NULL;
+    }
+    jl_syntax_t *declaration = new_syntax();
+    declaration->token = token;
+    token = jl_token_list_advance(tokens);
+    if(token->type != IDENTIFIER)
+    {
+      err_unexpected_syntax(token);
+      return NULL;
+    }
+    jl_syntax_t *syntax = new_syntax();
+    declaration->left = syntax;
+    syntax->token = token;
+    if(jl_token_list_advance(tokens)->type == EQUAL)
+    {
+      jl_token_list_advance(tokens);
+      syntax->value = parse_expression(tokens);
+    }
+    else 
+    {
+      if(declaration->token->type == CONST)
+      {
+        err_unassigned_const(token);
+        return NULL;
+      }
+      syntax->value = new_syntax();
+      syntax->value->token = jl_token_new(NULL, NIL);
+    }
+    token = jl_token_list_peek(tokens, 0);
+    syntax->left = new_syntax();
+    syntax->left->token = jl_token_new(NULL, TERMINATOR);
+    jl_program_add(args, declaration);
+  } while(token->type == COMMA);
+  if(jl_token_list_peek(tokens, 0)->type != RIGHT_PAREN)
+  {
+
+    err_unexpected_syntax(jl_token_list_peek(tokens, 0));
+    return NULL;
+  }
+  jl_token_list_advance(tokens);
+  return args;
+}
+
+jl_syntax_t *parse_function(jl_token_list_t *tokens)
+{
+  jl_token_list_advance(tokens);
+  jl_syntax_t *syntax = new_syntax();
+  syntax->token = jl_token_list_peek(tokens, 0);
+  if(syntax->token->type != IDENTIFIER)
+  {
+    err_unexpected_syntax(syntax->token);
+  }
+  jl_token_list_advance(tokens);
+  
+  syntax->args = parse_function_args(tokens);
+  syntax->branch = parse_branch(tokens); 
+  return syntax;
+}
+
 jl_syntax_t *parse_statement(jl_token_list_t *tokens)
 {
   switch(jl_token_list_peek(tokens, 0)->type)
   {
+    case FUNCTION:
+      return parse_function(tokens);
     case WHILE:
       return parse_while(tokens);
     case VAR:

@@ -7,6 +7,7 @@
 #include "jlang_error.h"
 #include "vm.h"
 #include "stack.h"
+#include "stack.h"
 
 jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm);
 
@@ -258,6 +259,13 @@ jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm)
   return arr;
 }
 
+void interprete_branch(jl_syntax_t *syntax, vm_t *vm)
+{
+  vm_push_frame(vm, stack_new());
+  interprete(syntax->branch, vm);
+  vm_pop_frame(vm);
+}
+
 void eval_while(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
@@ -272,7 +280,7 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
   }
   while(condition->data.v_bool == true)
   {
-    interprete(syntax->branch, vm);
+    interprete_branch(syntax, vm);
     condition = eval_primary_expression(syntax->value, vm);
   }
 }
@@ -319,11 +327,16 @@ void eval_if(jl_syntax_t *syntax, vm_t *vm)
     jl_object_t *condition = eval_primary_expression(syntax->value, vm);
     if(syntax->token->type == ELSE || condition->data.v_bool == true)
     {
-      interprete((jl_program_t*)syntax->branch, vm);
+      interprete_branch(syntax, vm);
       return;
     }
     syntax = syntax->right;
   }
+}
+
+jl_object_t *eval_function_declaration(jl_syntax_t *syntax, vm_t *vm)
+{
+   
 }
 
 jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
@@ -334,6 +347,8 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   switch(syntax->token->type)
   {
+    case FUNCTION:
+      eval_function_declaration(syntax, vm);
     case IF:
       eval_if(syntax, vm);
       return NULL;

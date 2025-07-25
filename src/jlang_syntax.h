@@ -9,4 +9,5 @@ typedef struct jl_syntax {
   jl_syntax_t *right;
   jl_syntax_t *value; 
   void *branch; 
+  void *args;
 } jl_syntax_t;

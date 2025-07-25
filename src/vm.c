@@ -1,6 +1,8 @@
 #include "vm.h"
 #include "stack.h"
 
+stack_t *vm_curr_frame(vm_t *vm);
+
 vm_t *vm_new()
 {
   vm_t *vm = malloc(sizeof(vm_t));
@@ -18,6 +20,14 @@ vm_t *vm_new()
   return vm;
 }
 
+void copy_references(stack_t *target, stack_t *src)
+{
+  for(int i = 0; i < src->count; i++) 
+  {
+    stack_push(target, src->data[i]);
+  }
+}
+
 void vm_push_frame(vm_t *vm, stack_t *frame)
 {
   if(vm == NULL)
@@ -32,16 +42,27 @@ void vm_push_frame(vm_t *vm, stack_t *frame)
     vm->frames = tmp;
     vm->size *= 2;
   }
+  if(vm->count > 0)
+  {
+    copy_references(frame, vm_curr_frame(vm)); 
+    frame->parent_references = frame->count;
+  }
   vm->frames[vm->count++] = frame;
 }
 
-stack_t *vm_pop_frame(vm_t *vm)
+void vm_pop_frame(vm_t *vm)
 {
   if(vm == NULL || vm->count == 0)
   {
-    return NULL;
+    return;
   }
-  return (stack_t *)vm->frames[vm->count--];
+  stack_t *frame = vm_curr_frame(vm);
+  for(int i = frame->parent_references; i < frame->count; i++)
+  {
+    free(frame->data[i]);
+  }
+  free(frame);
+  vm->count--;
 }
 
 stack_t *vm_curr_frame(vm_t *vm)

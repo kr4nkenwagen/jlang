@@ -21,7 +21,7 @@ void mark(vm_t *vm)
 
 void trace(vm_t *vm)
 {
-  stack_t *gray_objs = stack_new(8);
+  stack_t *gray_objs = stack_new();
   if(gray_objs == NULL)
   {
     return;

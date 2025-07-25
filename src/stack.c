@@ -4,16 +4,17 @@
 #include "stack.h"
 #include <stdlib.h>
 
- stack_t *stack_new(size_t capacity)
+ stack_t *stack_new()
 {
   stack_t *obj = malloc(sizeof(stack_t));
   if(obj == NULL)
   {
     return NULL;
   }
-  obj->capacity = capacity;
+  obj->capacity = 8;
   obj->count = 0;
-  obj->data = calloc(sizeof(void *), capacity);
+  obj->parent_references = 0;
+  obj->data = calloc(sizeof(void *), 8);
   if(obj->data == NULL)
   {
     return NULL;

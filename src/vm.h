@@ -15,6 +15,6 @@ typedef struct frame {
 
 vm_t *vm_new();
 void vm_push_frame(vm_t *vm, stack_t *frame);
-stack_t *vm_pop_frame(vm_t *vm);
+void vm_pop_frame(vm_t *vm);
 stack_t *vm_curr_frame(vm_t *vm);
 
