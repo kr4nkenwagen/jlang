@@ -111,7 +111,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       return NULL;
   }
   free(syntax);
-  printf("syntax error: %i\n", token->type);
+  //printf("syntax error: %i\n", token->type);
   return NULL;
 }
 
@@ -373,33 +373,22 @@ jl_syntax_t  *parse_if(jl_token_list_t *tokens)
     return NULL;
   }
   parent->branch = parse_branch(tokens);
-  jl_syntax_t *syntax = parent->right;
+  jl_syntax_t *syntax = parent;
   while(jl_token_list_peek(tokens, 0)->type == ELSE_IF)
   {
-    if(parent->right == NULL)
-    {
-      syntax = new_syntax();
-      parent->right = syntax;
-    }
-    else 
-    {
-      syntax->right = new_syntax();
-      syntax = syntax->right;
-    }
-    syntax->token = jl_token_list_peek(tokens, 0);
+    syntax->right = new_syntax();
+    syntax->right->token = jl_token_list_peek(tokens, 0);
     jl_token_list_advance(tokens);
-    syntax->value = parse_expression(tokens);
-    syntax->branch = (jl_program_t *)parse_branch(tokens);
+    syntax->right->value = parse_expression(tokens);
+    syntax->right->branch = (jl_program_t *)parse_branch(tokens);
+    syntax = syntax->right;
   }
-  printf("%i\n", jl_token_list_peek(tokens, 0)->type);
   if(jl_token_list_peek(tokens, 0)->type == ELSE)
   {
-    syntax = new_syntax();
-    syntax->token = jl_token_list_peek(tokens, 0);
+    syntax->right = new_syntax();
+    syntax->right->token = jl_token_list_peek(tokens, 0);
     jl_token_list_advance(tokens);
-    printf("%i\n", jl_token_list_peek(tokens, 0)->type);
-    syntax->branch = parse_branch(tokens);
-    printf("%i\n", jl_token_list_peek(tokens, 0)->type);
+    syntax->right->branch = parse_branch(tokens);
   }
   return parent; 
 }

@@ -262,9 +262,10 @@ void eval_if(jl_syntax_t *syntax, vm_t *vm)
 {
 
   while(
-    syntax != NULL && syntax->token->type == IF || 
-    syntax != NULL && syntax->token->type == ELSE_IF || 
-    syntax != NULL && syntax->token->type == ELSE)
+    syntax != NULL && (
+    syntax->token->type == IF || 
+    syntax->token->type == ELSE_IF || 
+    syntax->token->type == ELSE))
   {
     jl_object_t *condition = eval_primary_expression(syntax->value, vm);
     if(syntax->token->type == ELSE || condition->data.v_bool == true)

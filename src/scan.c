@@ -221,7 +221,7 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     if(is_next_word_match(src, "else"))
     {
       consume_word(src);
-      if(tolower(jl_source_code_peek(src, 2)) == 'i' && tolower(jl_source_code_peek(src, 3)) == 'f');
+      if(tolower(jl_source_code_peek(src, 2)) == 'i' && tolower(jl_source_code_peek(src, 3)) == 'f')
       {
         jl_source_code_advance(src);
         consume_word(src);
@@ -251,7 +251,6 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     if(is_next_word_match(src, "if"))
     {
       consume_word(src);
-      
       return jl_token_new(src, IF);
     }
   case 'n':
