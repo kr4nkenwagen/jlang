@@ -4,6 +4,7 @@
 #include "jlang_token.h"
 #include "jlang_program.h"
 #include "jlang_common.h"
+#include "jlang_error.h"
 #include "vm.h"
 #include "stack.h"
 
@@ -84,7 +85,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
     {
       return jl_add(left_hand_side, right_hand_side);
     }
-    printf("Illegal operation!\n");
+    err_illegal_operation(syntax->token);
   }
 }
 
@@ -99,7 +100,7 @@ jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm)
   {
     return jl_new_bool(!right_hand_side->data.v_bool);
   }
-  printf("Trying to perform illegal operation");
+  err_illegal_operation(syntax->token);
 }
 
 jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, vm_t *vm)
@@ -137,6 +138,18 @@ jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, vm_t *vm)
   return NULL;
 }
 
+bool divide_by_zero(jl_object_t *a, jl_object_t *b)
+{
+  if((a->type == INT && a->data.v_int == 0) ||
+   (a->type == FLOAT && a->data.v_float == 0) ||
+   (b->type == INT && b->data.v_int == 0) ||
+   (b->type == FLOAT && b->data.v_float == 0))
+  {
+    return true;
+  }  
+  return false;
+}
+
 jl_object_t *eval_binary_expression(jl_syntax_t *syntax, vm_t *vm)
 {
   if(syntax == NULL)
@@ -145,6 +158,7 @@ jl_object_t *eval_binary_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+
   if(syntax->token->type == PLUS)
   {
     return jl_add(left_hand_side, right_hand_side);
@@ -157,7 +171,11 @@ jl_object_t *eval_binary_expression(jl_syntax_t *syntax, vm_t *vm)
   {
     return jl_multiply(left_hand_side, right_hand_side);
   }
-  else if(syntax->token->type == SLASH)
+  if(divide_by_zero(left_hand_side, right_hand_side))
+  {
+    err_divide_by_zero(syntax->token);
+  }
+  if(syntax->token->type == SLASH)
   {
     return jl_divide(left_hand_side, right_hand_side);
   }
@@ -176,7 +194,28 @@ void eval_assignment_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
-  jl_assign(left_hand_side, right_hand_side);
+  switch(syntax->token->type)
+  {
+    case EQUAL:
+      jl_assign(left_hand_side, right_hand_side);
+    break;
+    case PLUS_EQUAL:
+      jl_assign(left_hand_side, jl_add(left_hand_side, right_hand_side));
+    break;
+    case MINUS_EQUAL:
+      jl_assign(left_hand_side, jl_subtract(left_hand_side, right_hand_side));
+    break;
+    case STAR_EQUAL:
+      jl_assign(left_hand_side, jl_multiply(left_hand_side, right_hand_side));
+    break;
+    case SLASH_EQUAL:
+      if(divide_by_zero(left_hand_side, right_hand_side))
+      {
+        err_divide_by_zero(syntax->token);
+      }
+      jl_assign(left_hand_side, jl_divide(left_hand_side, right_hand_side));
+    break;
+  }
 }
 
 void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
@@ -191,7 +230,7 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
   {
     if(jl_stack_get(vm_curr_frame(vm), syntax->token->literal) != NULL)
     {
-      printf("Variable '%s' is already declared", syntax->token->literal);
+      err_redeclaration(syntax->token);
       return;
     }
     jl_object_t *obj = eval_primary_expression(syntax->value, vm);
@@ -228,13 +267,11 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
   jl_object_t *condition = eval_primary_expression(syntax->value, vm);
   if(condition->type != BOOLEAN)
   {
-    printf("condition is not boolean.\n");
+    err_expected_boolean_condition(syntax->token);
     return;
   }
-  printf("dddad\n");
   while(condition->data.v_bool == true)
   {
-    printf("%i", condition->data.v_bool);
     interprete(syntax->branch, vm);
     condition = eval_primary_expression(syntax->value, vm);
   }
@@ -258,13 +295,13 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
   jl_object_t * index = eval_array_declaration(syntax->right, vm);
   if(index == NULL || index->data.v_array->count != 1)
   {
-    printf("expected array index");
+    err_expected_array_index(syntax->token);
     return NULL;
   }
   index = jl_array_get(index, 0);
   if(index->type != INT)
   {
-    printf("Index is not an integer number");
+    err_expected_array_index(syntax->token);
     return NULL;
   }
   return jl_array_get(obj, index->data.v_int);
@@ -319,6 +356,10 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
     case GREATER:
       return eval_comparison_expression(syntax, vm);
     case EQUAL:
+    case PLUS_EQUAL:
+    case MINUS_EQUAL:
+    case STAR_EQUAL:
+    case SLASH_EQUAL:
       eval_assignment_expression(syntax, vm);
       return NULL;
     case CONST:
@@ -344,7 +385,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
     case MODULUS: 
       return eval_binary_expression(syntax, vm);
     default:
-      printf("interpreter error: %i\n", syntax->token->type);
+      err_interpreter_error(syntax->token);
     break;
   }
   return NULL;

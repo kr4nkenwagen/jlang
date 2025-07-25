@@ -305,7 +305,6 @@ jl_object_t *jl_equals(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(true);
     }
   }
-  printf("Illegal comparsion!\n");
   return NULL;
 }
 
@@ -374,7 +373,6 @@ jl_object_t *jl_not_equals(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(true);
     }
   }
-  printf("Illegal comparsion!\n");
   return NULL;
 }
 
@@ -436,7 +434,6 @@ jl_object_t *jl_greater_equals(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(true);
     }
   }
-  printf("Illegal comparsion!\n");
   return NULL;
 }
 
@@ -491,7 +488,6 @@ jl_object_t *jl_greater(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(a->data.v_bool > b->data.v_bool);
     }
   }
-  printf("Illegal comparsion!\n");
   return NULL;
 }
 
@@ -546,7 +542,6 @@ jl_object_t *jl_less(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(a->data.v_bool < b->data.v_bool);
     }
   }
-  printf("Illegal comparsion!\n");
   return NULL;
 }
 
@@ -601,7 +596,6 @@ jl_object_t *jl_less_equals(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(a->data.v_bool <= b->data.v_bool);
     }
   }
-  printf("Illegal comparsion!\n");
   return NULL;
 }
 
@@ -745,12 +739,7 @@ jl_object_t *jl_multiply(jl_object_t *a, jl_object_t *b)
   }
   if(a->type == STRING)
   {
-    if(b->type == STRING)
-    {
-      printf("Hey! Thats  illegal!");
-      return a;
-    }
-    else if(b->type == INT)
+    if(b->type == INT)
     {
       jl_multiply_string(a, b);
       return a;
@@ -769,14 +758,12 @@ jl_object_t *jl_divide(jl_object_t *a, jl_object_t *b)
   {
     if(a->data.v_int == 0)
     {
-      printf("ERROR: divide by 0");
       return NULL;
     }
     if(b->type == FLOAT)
     {
       if(b->data.v_float == 0)
       {
-        printf("ERROR: divide by 0");
         return NULL;
       }
       return jl_new_int(a->data.v_int / b->data.v_float);  
@@ -785,7 +772,6 @@ jl_object_t *jl_divide(jl_object_t *a, jl_object_t *b)
     {
       if(b->data.v_int == 0)
       {
-        printf("ERROR: divide by 0");
         return NULL;
       }
       return jl_new_int(a->data.v_int / b->data.v_int);
@@ -795,14 +781,12 @@ jl_object_t *jl_divide(jl_object_t *a, jl_object_t *b)
   {
     if(a->data.v_float == 0)
     {
-      printf("ERROR: divide by 0");
       return NULL;
     }
     if(b->type == INT)
     {
       if(b->data.v_int == 0)
       {
-        printf("ERROR: divide by 0");
         return NULL;
       }
       return jl_new_float(a->data.v_float / b->data.v_int); 
@@ -811,7 +795,6 @@ jl_object_t *jl_divide(jl_object_t *a, jl_object_t *b)
     {
       if(b->data.v_float == 0)
       {
-        printf("ERROR: divide by 0");
         return NULL;
       }
      return jl_new_float(a->data.v_float / b->data.v_float);
@@ -819,18 +802,8 @@ jl_object_t *jl_divide(jl_object_t *a, jl_object_t *b)
   }
   if(a->type == STRING)
   {
-    if(b->type == STRING)
+    if(b->type == INT)
     {
-      printf("Hey! Thats  illegal!");
-      return a;
-    }
-    else if(b->type == INT)
-    {
-      if(b->data.v_int == 0)
-      {
-        printf("ERROR: divide by 0");
-        return NULL;
-      }
       jl_divide_string(a, b);
       return a;
     }
@@ -846,45 +819,15 @@ jl_object_t *jl_modulus(jl_object_t *a, jl_object_t *b)
   }
   if(a->type == INT)
   {
-    if(a->data.v_int == 0)
+    if(b->type == INT)
     {
-      printf("ERROR: divide by 0");
-      return NULL;
-    }
-    if(b->type == FLOAT)
-    {
-        printf("ERROR: divide by 0");
-        return NULL;
-    }
-    else if(b->type == INT)
-    {
-      if(b->data.v_int == 0)
-      {
-        printf("ERROR: divide by 0");
-        return NULL;
-      }
       return jl_new_int(a->data.v_int % b->data.v_int);
     }
   }
-  if(a->type == FLOAT)
-  {
-      printf("ERROR: divide by 0");
-      return NULL;
-  }
   if(a->type == STRING)
   {
-    if(b->type == STRING)
+    if(b->type == INT)
     {
-      printf("Hey! Thats  illegal!");
-      return a;
-    }
-    else if(b->type == INT)
-    {
-      if(b->data.v_int == 0)
-      {
-        printf("ERROR: divide by 0");
-        return NULL;
-      }
       jl_modulus_string(a, b);
       return a;
     }

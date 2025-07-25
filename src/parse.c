@@ -4,6 +4,7 @@
 #include "jlang_token.h"
 #include "jlang_syntax.h"
 #include "jlang_object.h"
+#include "jlang_error.h"
 
 jl_syntax_t *parse_expression(jl_token_list_t *tokens);
 jl_syntax_t *parse_statement(jl_token_list_t *tokens);
@@ -13,7 +14,6 @@ jl_syntax_t *new_syntax()
   jl_syntax_t * syntax = malloc(sizeof(jl_syntax_t));
   if(syntax == NULL)
   {
-    printf("error creating syntax node\n");
     return NULL;
   }
   memset(syntax, 0, sizeof(jl_syntax_t));
@@ -34,7 +34,7 @@ jl_syntax_t *parse_array_declaration(jl_token_list_t *tokens)
     }
     if(!(token->type == IDENTIFIER || token->type == NUMBER || token->type == STRING))
     {
-      printf("expected IDENTIFIER, NUMBER or STRING.");
+      err_expected_identifier_or_literal(token);
       return NULL;
     }
     jl_syntax_t *syntax = new_syntax();
@@ -46,7 +46,7 @@ jl_syntax_t *parse_array_declaration(jl_token_list_t *tokens)
   } while(token->type == COMMA);
   if(token->type != RIGHT_BRACKET)
   {
-    printf("bracket not closed\n");
+    err_bracket_not_closed(token);
     return NULL;
   }
   jl_token_list_advance(tokens);
@@ -95,14 +95,14 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
     case LEFT_PAREN:
       if(jl_token_list_advance(tokens) == NULL)
       {
-        printf("End of tokens?\n");
+        err_end_of_tokens(token);
         return NULL;
       }
       syntax = parse_expression(tokens);
       jl_token_t *token = jl_token_list_peek(tokens, 0);
       if(token == NULL || token->type != RIGHT_PAREN)
       {
-        printf("ERROR: Unexpected token. expected ')'\n");
+        err_unexpected_syntax(token);
       }
       jl_token_list_advance(tokens);
       return syntax;
@@ -111,7 +111,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       return NULL;
   }
   free(syntax);
-  //printf("syntax error: %i\n", token->type);
+  err_unexpected_syntax(token);
   return NULL;
 }
 
@@ -217,7 +217,7 @@ jl_syntax_t *parse_comparision(jl_token_list_t * tokens)
     if(op->token == NULL)
     {
       free(op);
-      printf("end of tokens?\n");
+      err_end_of_tokens(token);
       return NULL;
     }
     op->token = token;
@@ -241,7 +241,7 @@ jl_syntax_t *parse_equality(jl_token_list_t * tokens)
     if(op->token == NULL)
     {
       free(op);
-      printf("end of tokens?\n");
+      err_end_of_tokens(token);
       return NULL;
     }
     op->token = token;
@@ -256,14 +256,20 @@ jl_syntax_t *parse_assignment(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_equality(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && token->type == EQUAL)
+  if(token != NULL && (
+    token->type == EQUAL ||
+    token->type == PLUS_EQUAL ||
+    token->type == MINUS_EQUAL ||
+    token->type == STAR_EQUAL ||
+    token->type == SLASH_EQUAL
+  ))
   {
     jl_syntax_t *op = new_syntax();
     op->token = jl_token_list_advance(tokens);
     if(op->token == NULL)
     {
       free(op);
-      printf("end of tokens?\n");
+      err_end_of_tokens(token);
       return NULL;
     }
     op->token = token;
@@ -294,7 +300,7 @@ jl_syntax_t *parse_variable_declarations(jl_token_list_t *tokens)
     }
     if(token->type != IDENTIFIER)
     {
-      printf("expected identifer in variable declaration\n");
+      err_unexpected_syntax(token);
       return NULL;
     }
     jl_syntax_t *syntax = new_syntax();
@@ -308,7 +314,7 @@ jl_syntax_t *parse_variable_declarations(jl_token_list_t *tokens)
     {
       if(declaration->token->type == CONST)
       {
-        printf("consts need to have values assigned\n");
+        err_unassigned_const(token);
         return NULL;
       }
       syntax->value = new_syntax();
@@ -333,7 +339,7 @@ jl_program_t *parse_branch(jl_token_list_t *tokens)
   {
     if(jl_token_list_peek(tokens, 0)->type == END_OF_FILE)
     {
-      printf("unexpected end of file instead of '}'");
+      err_unexpected_eof(jl_token_list_peek(tokens, 0));
       return NULL;
     }
     jl_syntax_t *syntax = NULL;
@@ -369,7 +375,7 @@ jl_syntax_t  *parse_if(jl_token_list_t *tokens)
   parent->value = parse_expression(tokens);
   if(jl_token_list_peek(tokens, 0)->type != LEFT_BRACE)
   {
-    printf("Expected '{' after if statement\n");
+    err_unexpected_syntax(jl_token_list_peek(tokens, 0));
     return NULL;
   }
   parent->branch = parse_branch(tokens);

@@ -91,6 +91,11 @@ int is_end_of_word(char c)
     case '{':
     case '}':
     case ':':
+    case '=':
+    case '+':
+    case '-':
+    case '/':
+    case '*':
       return 1;
   }
   return 0;
@@ -322,7 +327,7 @@ jl_token_list_t *scan(jl_source_code_t *src)
 {
   if(src == NULL)
   {
-    printf("src is null\n");
+    err_src_null(); 
     return NULL;
   }
   jl_token_list_t *token_list = jl_token_list_new();
@@ -381,10 +386,26 @@ jl_token_list_t *scan(jl_source_code_t *src)
         }
       break;
       case '-':
+      if(jl_source_code_peek(src, 1) == '=')
+      {
+        jl_token_list_add(token_list, jl_token_new(src, MINUS_EQUAL));
+        jl_source_code_advance(src);
+      }
+      else 
+      {
         jl_token_list_add(token_list,  jl_token_new(src, MINUS));
+      }
       break;
       case '+':
+      if(jl_source_code_peek(src, 1) == '=')
+      {
+        jl_token_list_add(token_list, jl_token_new(src, PLUS_EQUAL));
+        jl_source_code_advance(src);
+      }
+      else 
+      {
         jl_token_list_add(token_list,  jl_token_new(src, PLUS));
+      }
       break;
         jl_token_list_add(token_list,  jl_token_new(src, SEMICOLON));
      break;
@@ -392,10 +413,26 @@ jl_token_list_t *scan(jl_source_code_t *src)
         jl_token_list_add(token_list,  jl_token_new(src, MODULUS));
       break;
       case '/':
+      if(jl_source_code_peek(src, 1) == '=')
+      {
+        jl_token_list_add(token_list, jl_token_new(src, SLASH_EQUAL));
+        jl_source_code_advance(src);
+      }
+      else 
+      {
         jl_token_list_add(token_list,  jl_token_new(src, SLASH));
+      }
       break;
       case '*':
+       if(jl_source_code_peek(src, 1) == '=')
+      {
+        jl_token_list_add(token_list, jl_token_new(src, STAR_EQUAL));
+        jl_source_code_advance(src);
+      }
+      else 
+      {
         jl_token_list_add(token_list,  jl_token_new(src, STAR));
+      }
       break;
       case '\'':
       case '"':
@@ -404,7 +441,7 @@ jl_token_list_t *scan(jl_source_code_t *src)
         jl_token_list_add(token_list, token_string);
       break; 
       case '!':
-       if(jl_source_code_peek(src, 1) == '=')
+      if(jl_source_code_peek(src, 1) == '=')
       {
         jl_token_list_add(token_list, jl_token_new(src, BANG_EQUAL));
         jl_source_code_advance(src);

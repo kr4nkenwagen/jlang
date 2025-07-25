@@ -32,7 +32,7 @@ void stack_push(stack_t *stack, jl_object_t *obj)
     stack->capacity *= 2;
     if(realloc(stack->data, sizeof(jl_object_t *) * stack->capacity) == NULL)
     {
-      printf("REPLACE ME WITH ERROR");
+      return;
     }
   }
   stack->data[stack->count++] = obj;

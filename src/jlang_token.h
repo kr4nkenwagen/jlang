@@ -50,7 +50,11 @@ typedef enum jl_token_type{
   CONST,
   LEFT_BRACKET,
   RIGHT_BRACKET,
-  ELSE_IF
+  ELSE_IF,
+  PLUS_EQUAL,
+  MINUS_EQUAL,
+  STAR_EQUAL,
+  SLASH_EQUAL
 }jl_token_type_t;
 
 typedef struct jl_token {
