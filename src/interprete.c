@@ -225,7 +225,19 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
   {
     return;
   }
-
+  jl_object_t *condition = eval_primary_expression(syntax->value, vm);
+  if(condition->type != BOOLEAN)
+  {
+    printf("condition is not boolean.\n");
+    return;
+  }
+  printf("dddad\n");
+  while(condition->data.v_bool == true)
+  {
+    printf("%i", condition->data.v_bool);
+    interprete(syntax->branch, vm);
+    condition = eval_primary_expression(syntax->value, vm);
+  }
 }
 
 jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
@@ -292,6 +304,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
       return eval_array_declaration(syntax, vm);
     case WHILE:
       eval_while(syntax, vm);
+      return NULL;
     case COLON:
     case COLON_HAT:
     case DOT_DOT:

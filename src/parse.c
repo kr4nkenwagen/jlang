@@ -46,7 +46,7 @@ jl_syntax_t *parse_array_declaration(jl_token_list_t *tokens)
   } while(token->type == COMMA);
   if(token->type != RIGHT_BRACKET)
   {
-    printf("bracket not closed");
+    printf("bracket not closed\n");
     return NULL;
   }
   jl_token_list_advance(tokens);
@@ -62,7 +62,7 @@ jl_syntax_t *parse_identifier(jl_token_list_t *tokens)
     return NULL;
   }
   jl_token_list_advance(tokens);
-  if(jl_token_list_peek(tokens, 0)->type != LEFT_BRACKET)
+  if(jl_token_list_peek(tokens, 0)->type == LEFT_BRACKET)
   {
     syntax->right = parse_array_declaration(tokens);
   }
@@ -393,10 +393,22 @@ jl_syntax_t  *parse_if(jl_token_list_t *tokens)
   return parent; 
 }
 
+jl_syntax_t *parse_while(jl_token_list_t *tokens)
+{
+  jl_syntax_t *syntax = new_syntax();
+  syntax->token = jl_token_list_peek(tokens, 0);
+  jl_token_list_advance(tokens);
+  syntax->value = parse_expression(tokens);
+  syntax->branch = parse_branch(tokens);
+  return syntax;
+}
+
 jl_syntax_t *parse_statement(jl_token_list_t *tokens)
 {
   switch(jl_token_list_peek(tokens, 0)->type)
   {
+    case WHILE:
+      return parse_while(tokens);
     case VAR:
     case CONST:
       return parse_variable_declarations(tokens);
