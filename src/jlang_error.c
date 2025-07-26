@@ -69,10 +69,25 @@ void err_expected_array_index(jl_token_t *token)
 
 void err_interpreter_error(jl_token_t *token)
 {
-  fprintf(stderr, "[ERROR:%i:%i] Interpreter error: %s", token->line, token->column, token->literal);
+  fprintf(stderr, "[ERROR:%i:%i] Interpreter error: %s\n", token->line, token->column, token->literal);
 }
 
 void err_divide_by_zero(jl_token_t *token)
 {
   fprintf(stderr, "[ERROR:%i:%i] Divide by zero\n", token->line, token->column);
+}
+
+void err_identifier_does_not_exist(jl_token_t *token)
+{
+  fprintf(stderr, "[ERROR:%i:%i] '%s' is not defined\n", token->line, token->column, token->literal);
+}
+
+void err_paren_not_closed(jl_token_t *token)
+{
+  fprintf(stderr, "[ERROR:%i%i] Paren not closed\n", token->line, token->column);
+}
+
+void err_incorrect_number_of_references(jl_token_t *token)
+{
+  fprintf(stderr, "[ERROR:%i%i] Incorrect number of references\n", token->line, token->column);
 }

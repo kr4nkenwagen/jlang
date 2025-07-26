@@ -88,7 +88,6 @@ jl_object_t *jl_stack_get(stack_t* stack, char *name)
   {
     if(strcmp(stack->data[i]->name, name) == 0)
     {
-
       return stack->data[i];
     }
   }

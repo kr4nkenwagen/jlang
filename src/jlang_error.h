@@ -15,3 +15,6 @@ void err_expected_boolean_condition(jl_token_t *token);
 void err_expected_array_index(jl_token_t *token);
 void err_interpreter_error(jl_token_t *token);
 void err_divide_by_zero(jl_token_t *token);
+void err_identifier_does_not_exist(jl_token_t *token);
+void err_paren_not_closed(jl_token_t *token);
+void err_incorrect_number_of_references(jl_token_t *token);

@@ -109,6 +109,20 @@ jl_object_t *jl_new_vector(jl_object_t *x, jl_object_t *y, jl_object_t *z)
   return obj;
 }
 
+jl_object_t *jl_new_funct(void *syntax)
+{
+  jl_object_t *obj = malloc(sizeof(jl_object_t));
+  if(obj == NULL)
+  {
+    return NULL;
+  }
+  obj->is_marked = false;
+  obj->type = FUNCTION_OBJECT;
+  obj->refcount = 1;
+  obj->data.v_funct = syntax;
+  return obj;
+}
+
 jl_object_t *jl_new_null()
 {
   jl_object_t *obj = malloc(sizeof(jl_object_t));

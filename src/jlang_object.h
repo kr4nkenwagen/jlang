@@ -7,7 +7,8 @@ typedef enum jl_object_type {
   ARRAY,
   VECTOR,
   NIL_OBJECT,
-  BOOLEAN
+  BOOLEAN,
+  FUNCTION_OBJECT
 }jl_object_type_t;
 
 typedef struct jl_object jl_object_t;
@@ -29,6 +30,7 @@ typedef union jl_object_data {
   float v_float;
   char *v_string;
   bool v_bool;
+  void *v_funct;
   jl_vector_t *v_vector;
   jl_array_t *v_array;
 }jl_object_data_t;
@@ -49,6 +51,7 @@ jl_object_t *jl_new_array();
 jl_object_t *jl_new_null();
 jl_object_t *jl_new_bool(bool value);
 jl_object_t *jl_new_vector(jl_object_t *x, jl_object_t *y, jl_object_t *z);
+jl_object_t *jl_new_funct(void *syntax);
 
 void jl_object_free(jl_object_t *obj);
 

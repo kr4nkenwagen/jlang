@@ -53,7 +53,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
     {
       return jl_substring(left_hand_side, 0, right_hand_side->data.v_int);
     }
-    if(right_hand_side->type == STRING)
+    if(right_hand_side->type == STRING_WRAPPER)
     {
       int position = jl_position_of_first_instance(left_hand_side, right_hand_side->data.v_string);
       if(position == -1)
@@ -70,7 +70,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
       size_t size = jl_length(left_hand_side);
       return jl_substring(left_hand_side, size - right_hand_side->data.v_int, right_hand_side->data.v_int);
     }
-    if(right_hand_side->type == STRING)
+    if(right_hand_side->type == STRING_WRAPPER)
     {
       int position = jl_position_of_last_instance(left_hand_side, right_hand_side->data.v_string);
       if(position == -1)
@@ -82,7 +82,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   else if(syntax->token->type == DOT_DOT)
   {
-    if(left_hand_side->type == STRING || right_hand_side->type == STRING)
+    if(left_hand_side->type == STRING_WRAPPER || right_hand_side->type == STRING_WRAPPER)
     {
       return jl_add(left_hand_side, right_hand_side);
     }
@@ -227,9 +227,9 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
   }
   int is_const = syntax->token->type == CONST;
   syntax = syntax->left;
-  while(syntax != NULL)
+  while(syntax != NULL && syntax->token->type == IDENTIFIER)
   {
-    if(jl_stack_get(vm_curr_frame(vm), syntax->token->literal) != NULL)
+   if(jl_stack_get(vm_curr_frame(vm), syntax->token->literal) != NULL)
     {
       err_redeclaration(syntax->token);
       return;
@@ -262,6 +262,21 @@ jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm)
 void interprete_branch(jl_syntax_t *syntax, vm_t *vm)
 {
   vm_push_frame(vm, stack_new());
+  if(syntax->args !=NULL)
+  {
+    interprete(syntax->args, vm);
+    jl_object_t *arg_vals = eval_array_declaration(syntax->value, vm);
+    stack_t * curr_stack = vm_curr_frame(vm);
+    if(curr_stack->count - curr_stack->parent_references != arg_vals->data.v_array->count)
+    {
+      err_incorrect_number_of_references(syntax->token);
+    }
+    for(int i = curr_stack->parent_references; i < curr_stack->count; i++)
+    {
+      curr_stack->data[i]->data = arg_vals->data.v_array->elements[i - curr_stack->parent_references]->data;
+      curr_stack->data[i]->type = arg_vals->data.v_array->elements[i - curr_stack->parent_references]->type;
+    }
+  }
   interprete(syntax->branch, vm);
   vm_pop_frame(vm);
 }
@@ -285,17 +300,8 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
   }
 }
 
-jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_array_identifier(jl_syntax_t *syntax, vm_t *vm, jl_object_t *obj)
 {
-  jl_object_t *obj = jl_stack_get(vm_curr_frame(vm), syntax->token->literal);
-  if(obj == NULL)
-  {
-    return NULL;
-  }
-  if(obj->type != ARRAY)
-  {
-    return obj;
-  }
   if(syntax->right == NULL || syntax->right->token->type != LEFT_BRACKET)
   {
     return obj;
@@ -313,6 +319,37 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
     return NULL;
   }
   return jl_array_get(obj, index->data.v_int);
+}
+
+jl_object_t *eval_function_identifier(jl_syntax_t *syntax, vm_t *vm)
+{
+  interprete_branch(syntax, vm);
+}
+
+jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
+{
+  jl_object_t *obj = jl_stack_get(vm_curr_frame(vm), syntax->token->literal);
+  if(obj == NULL)
+  {
+    err_identifier_does_not_exist(syntax->token);
+    return NULL;
+  }
+  if(obj->type == ARRAY)
+  {
+    eval_array_identifier(syntax, vm, obj);
+  }
+  if(obj->type == FUNCTION_OBJECT)
+  {
+    if(syntax->left == NULL)
+    {
+      err_interpreter_error(syntax->token);
+      return NULL;
+    }
+    ((jl_syntax_t *)obj->data.v_funct)->value = syntax->left;
+    
+    eval_function_identifier(obj->data.v_funct, vm);
+  }
+  return obj;
 }
 
 void eval_if(jl_syntax_t *syntax, vm_t *vm)
@@ -334,9 +371,11 @@ void eval_if(jl_syntax_t *syntax, vm_t *vm)
   }
 }
 
-jl_object_t *eval_function_declaration(jl_syntax_t *syntax, vm_t *vm)
+void eval_function_declaration(jl_syntax_t *syntax, vm_t *vm)
 {
-   
+  jl_object_t *funct = jl_new_funct(syntax->right);
+  funct->name = syntax->right->token->literal;
+  stack_push(vm_curr_frame(vm), funct);
 }
 
 jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
@@ -349,6 +388,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
   {
     case FUNCTION:
       eval_function_declaration(syntax, vm);
+      return NULL;
     case IF:
       eval_if(syntax, vm);
       return NULL;
@@ -383,7 +423,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
       return NULL;
     case IDENTIFIER:
       return eval_identifier(syntax, vm);
-    case STRING:
+    case STRING_WRAPPER:
       return jl_new_string(syntax->token->literal);
     case NUMBER:
       return eval_number(syntax);

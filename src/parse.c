@@ -32,7 +32,7 @@ jl_syntax_t *parse_array_declaration(jl_token_list_t *tokens)
     {
       token = jl_token_list_advance(tokens);
     }
-    if(!(token->type == IDENTIFIER || token->type == NUMBER || token->type == STRING))
+    if(!(token->type == IDENTIFIER || token->type == NUMBER || token->type == STRING_WRAPPER))
     {
       err_expected_identifier_or_literal(token);
       return NULL;
@@ -53,6 +53,39 @@ jl_syntax_t *parse_array_declaration(jl_token_list_t *tokens)
   return declaration;
 }
 
+jl_syntax_t *parse_passed_function_args(jl_token_list_t *tokens)
+{
+  jl_syntax_t *declaration = new_syntax();
+  declaration->token = jl_token_list_peek(tokens, 0);
+  jl_token_t *token = jl_token_list_advance(tokens);
+  jl_syntax_t *prev_syntax = declaration;
+  while(token->type != RIGHT_PAREN)
+  {
+    if(token->type == COMMA)
+    {
+      token = jl_token_list_advance(tokens);
+    }
+    if(!(token->type == IDENTIFIER || token->type == NUMBER || token->type == STRING_WRAPPER))
+    {
+      err_expected_identifier_or_literal(token);
+      return NULL;
+    }
+    jl_syntax_t *syntax = new_syntax();
+    syntax->token = token;
+    token = jl_token_list_peek(tokens, 0);
+    prev_syntax->left = syntax;
+    prev_syntax = syntax;
+    token = jl_token_list_advance(tokens);
+  }
+  if(token->type != RIGHT_PAREN)
+  {
+    err_paren_not_closed(token);
+    return NULL;
+  }
+  jl_token_list_advance(tokens);
+  return declaration;
+}
+
 jl_syntax_t *parse_identifier(jl_token_list_t *tokens)
 {
   jl_syntax_t *syntax = new_syntax();
@@ -65,6 +98,10 @@ jl_syntax_t *parse_identifier(jl_token_list_t *tokens)
   if(jl_token_list_peek(tokens, 0)->type == LEFT_BRACKET)
   {
     syntax->right = parse_array_declaration(tokens);
+  }
+  if(jl_token_list_peek(tokens, 0)->type == LEFT_PAREN)
+  {
+    syntax->left= parse_passed_function_args(tokens);
   }
   return syntax;
 }
@@ -84,7 +121,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       return parse_array_declaration(tokens);
     case IDENTIFIER: 
       return parse_identifier(tokens);
-    case STRING:
+    case STRING_WRAPPER:
     case NUMBER:
     case FALSE:
     case TRUE:
@@ -318,7 +355,7 @@ jl_syntax_t *parse_variable_declarations(jl_token_list_t *tokens)
         return NULL;
       }
       syntax->value = new_syntax();
-      syntax->value->token = jl_token_new(NULL, NIL);
+      syntax->value->token = jl_token_new(NULL, NIL, "null");
     }
     token = jl_token_list_peek(tokens, 0);
     prev_syntax->left = syntax;
@@ -425,8 +462,7 @@ jl_program_t *parse_function_args(jl_token_list_t *tokens)
     }
     if(token->type != VAR && token->type != CONST)
     {
-      err_unexpected_syntax(token);
-      return NULL;
+      break;
     }
     jl_syntax_t *declaration = new_syntax();
     declaration->token = token;
@@ -452,11 +488,11 @@ jl_program_t *parse_function_args(jl_token_list_t *tokens)
         return NULL;
       }
       syntax->value = new_syntax();
-      syntax->value->token = jl_token_new(NULL, NIL);
+      syntax->value->token = jl_token_new(NULL, NIL, "null");
     }
     token = jl_token_list_peek(tokens, 0);
     syntax->left = new_syntax();
-    syntax->left->token = jl_token_new(NULL, TERMINATOR);
+    syntax->left->token = jl_token_new(NULL, TERMINATOR, ";");
     jl_program_add(args, declaration);
   } while(token->type == COMMA);
   if(jl_token_list_peek(tokens, 0)->type != RIGHT_PAREN)
@@ -471,8 +507,11 @@ jl_program_t *parse_function_args(jl_token_list_t *tokens)
 
 jl_syntax_t *parse_function(jl_token_list_t *tokens)
 {
+  jl_syntax_t *declaration = new_syntax();
+  declaration->token = jl_token_list_peek(tokens, 0);
   jl_token_list_advance(tokens);
   jl_syntax_t *syntax = new_syntax();
+  declaration->right = syntax;
   syntax->token = jl_token_list_peek(tokens, 0);
   if(syntax->token->type != IDENTIFIER)
   {
@@ -482,7 +521,7 @@ jl_syntax_t *parse_function(jl_token_list_t *tokens)
   
   syntax->args = parse_function_args(tokens);
   syntax->branch = parse_branch(tokens); 
-  return syntax;
+  return declaration;
 }
 
 jl_syntax_t *parse_statement(jl_token_list_t *tokens)

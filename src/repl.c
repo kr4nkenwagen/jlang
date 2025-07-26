@@ -43,7 +43,7 @@ void count_tokens(jl_token_list_t *tokens)
 {
   for(int i = 0; i < tokens->count; i++)
   {
-    printf("token[%i]->%i\n", i, tokens->list[i]->type);
+    printf("token[%i]->%i->%s\n", i, tokens->list[i]->type, tokens->list[i]->literal);
   }
   printf("token count: %i\n", tokens->count);
 }
@@ -110,7 +110,7 @@ void repl()
     jl_source_code_t *src = jl_source_code_from_repl(input);
     jl_token_list_t *tokens = scan(src);
     jl_program_t *program = parse(tokens);
- //   debug(tokens, program);
+  //  debug(tokens, program);
     interprete(program, vm);
   }
 }
