@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "jlang_error.h"
-#include "jlang_token.h"
+#include "jlang_token/jlang_token.h"
 
 void err_unexpected_character(int line, int column, char c)
 {

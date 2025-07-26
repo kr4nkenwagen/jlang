@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include "jlang_object.h"
+#include "jlang_object/jlang_object.h"
 #include "stack.h"
 #include <stdlib.h>
 

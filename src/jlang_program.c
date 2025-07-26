@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "jlang_program.h"
-#include "jlang_syntax.h"
+#include "jlang_syntax/jlang_syntax.h"
 
 jl_program_t *jl_new_program()
 {

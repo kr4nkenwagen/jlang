@@ -1,5 +1,5 @@
-#include "jlang_token.h"
-#include "jlang_object.h"
+#include "../jlang_token/jlang_token.h"
+#include "../jlang_object/jlang_object.h"
 
 typedef struct jl_syntax jl_syntax_t;
 
@@ -11,3 +11,5 @@ typedef struct jl_syntax {
   void *branch; 
   void *args;
 } jl_syntax_t;
+
+jl_syntax_t *jl_syntax_new();

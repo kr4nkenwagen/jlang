@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "stack.h"
 #include "vm.h"
-#include "jlang_object.h"
+#include "jlang_object/jlang_object.h"
 
 void mark(vm_t *vm)
 {

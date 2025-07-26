@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <string.h>
 #include "scan.h"
-#include "parse.h"
-#include "interprete.h"
+#include "jlang_parser/jlang_parser.h"
+#include "jlang_interpreter/jlang_interpreter.h"
 #include "info.h"
 #include "jlang_source_code.h"
-#include "jlang_token.h"
-#include "jlang_syntax.h"
+#include "jlang_token/jlang_token.h"
+#include "jlang_syntax/jlang_syntax.h"
 #include "jlang_program.h"
 #include "stack.h"
 

@@ -1,11 +1,11 @@
 #include <stdio.h>
 #include "jlang_source_code.h"
-#include "jlang_object.h"
-#include "jlang_token.h"
+#include "jlang_object/jlang_object.h"
+#include "jlang_token/jlang_token.h"
 #include "jlang_program.h"
 #include "jlang_common.h"
 #include "scan.h"
-#include "parse.h"
+#include "jlang_parser/jlang_parser.h"
 #include "repl.h"
 
 void main ()

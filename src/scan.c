@@ -3,8 +3,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "scan.h"
-#include "jlang_object.h"
-#include "jlang_token.h"
+#include "jlang_object/jlang_object.h"
+#include "jlang_token/jlang_token.h"
+#include "jlang_token/jlang_token_list.h"
 #include "jlang_source_code.h"
 #include "jlang_error.h"
 

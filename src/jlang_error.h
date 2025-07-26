@@ -1,4 +1,4 @@
-#include "jlang_token.h"
+#include "jlang_token/jlang_token.h"
 
 void err_unexpected_character(int line, int column, char c);
 void err_eof_in_string(int line, int column);

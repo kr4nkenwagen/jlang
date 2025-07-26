@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "jlang_syntax.h"
+#include "jlang_syntax/jlang_syntax.h"
 
 typedef struct jl_program {
   jl_syntax_t **statements;

@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "jlang_object.h"
+#include "jlang_object/jlang_object.h"
 
 typedef struct stack {
   size_t count;
