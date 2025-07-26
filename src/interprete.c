@@ -53,7 +53,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
     {
       return jl_substring(left_hand_side, 0, right_hand_side->data.v_int);
     }
-    if(right_hand_side->type == STRING_WRAPPER)
+    if(right_hand_side->type == STRING)
     {
       int position = jl_position_of_first_instance(left_hand_side, right_hand_side->data.v_string);
       if(position == -1)
@@ -70,7 +70,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
       size_t size = jl_length(left_hand_side);
       return jl_substring(left_hand_side, size - right_hand_side->data.v_int, right_hand_side->data.v_int);
     }
-    if(right_hand_side->type == STRING_WRAPPER)
+    if(right_hand_side->type == STRING)
     {
       int position = jl_position_of_last_instance(left_hand_side, right_hand_side->data.v_string);
       if(position == -1)
@@ -82,7 +82,8 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   else if(syntax->token->type == DOT_DOT)
   {
-    if(left_hand_side->type == STRING_WRAPPER || right_hand_side->type == STRING_WRAPPER)
+    if(left_hand_side->type == STRING || right_hand_side->type == STRING)
+
     {
       return jl_add(left_hand_side, right_hand_side);
     }
