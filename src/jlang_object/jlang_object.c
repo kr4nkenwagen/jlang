@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 
-#include <math.h>
  
 jl_object_t *jl_new_int(int value)
 {

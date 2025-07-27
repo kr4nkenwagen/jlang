@@ -47,5 +47,3 @@ void print_array_content(jl_object_t *arr)
     jl_print_object(arr->data.v_array->elements[i]);
   }
 }
-
-

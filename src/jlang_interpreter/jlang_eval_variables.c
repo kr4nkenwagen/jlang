@@ -17,7 +17,6 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
     return;
   }
   bool is_const = syntax->token->type == CONST;
-  printf("%i\n", is_const);
   syntax = syntax->left;
   while(syntax != NULL && syntax->token->type == IDENTIFIER)
   {
