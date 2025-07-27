@@ -91,3 +91,8 @@ void err_incorrect_number_of_references(jl_token_t *token)
 {
   fprintf(stderr, "[ERROR:%i%i] Incorrect number of references\n", token->line, token->column);
 }
+
+void err_modify_constant(jl_token_t *token)
+{
+  fprintf(stderr, "[ERROR:%i%i] Tried to change state of a constant\n", token->line, token->column);
+}

@@ -10,6 +10,7 @@ jl_program_t *parse_function_args(jl_token_list_t *tokens)
   if(jl_token_list_peek(tokens, 0)->type != LEFT_PAREN)
   {
     err_unexpected_syntax(jl_token_list_peek(tokens, 0));
+    return NULL;
   }
   jl_token_t *token = jl_token_list_advance(tokens);
   do
@@ -40,11 +41,6 @@ jl_program_t *parse_function_args(jl_token_list_t *tokens)
     }
     else 
     {
-      if(declaration->token->type == CONST)
-      {
-        err_unassigned_const(token);
-        return NULL;
-      }
       syntax->value = jl_syntax_new();
       syntax->value->token = jl_token_new(NULL, NIL, "null");
     }

@@ -16,7 +16,8 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
   {
     return;
   }
-  int is_const = syntax->token->type == CONST;
+  bool is_const = syntax->token->type == CONST;
+  printf("%i\n", is_const);
   syntax = syntax->left;
   while(syntax != NULL && syntax->token->type == IDENTIFIER)
   {
@@ -27,6 +28,7 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
     }
     jl_object_t *obj = eval_primary_expression(syntax->value, vm);
     obj->name = syntax->token->literal;
+    obj->is_const = is_const;
     stack_push(vm_curr_frame(vm), obj);
     syntax = syntax->left; 
   }

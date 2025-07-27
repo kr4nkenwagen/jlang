@@ -77,7 +77,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   else if(syntax->token->type == DOT_DOT)
   {
-    if(left_hand_side->type == STRING_OBJECT || right_hand_side->type == STRING)
+    if(left_hand_side->type == STRING_OBJECT || right_hand_side->type == STRING_OBJECT)
     {
       return jl_add(left_hand_side, right_hand_side);
     }
@@ -189,6 +189,11 @@ void eval_assignment_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  if(left_hand_side->is_const)
+  {
+    err_modify_constant(syntax->token);
+    return;
+  }
   switch(syntax->token->type)
   {
     case EQUAL:

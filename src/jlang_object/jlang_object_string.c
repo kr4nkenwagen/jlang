@@ -124,7 +124,7 @@ int jl_string_length(jl_object_t *target)
 
 void jl_strip_instances_from_string(jl_object_t *target, jl_object_t *instance)
 {
-  if(target == NULL || instance == NULL || target->type != STRING_OBJECT || instance->type != STRING)
+  if(target == NULL || instance == NULL || target->type != STRING_OBJECT || instance->type != STRING_OBJECT)
   {
     return;
   }

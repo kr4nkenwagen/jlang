@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "jlang_object.h"
 #include "jlang_object_operations.h"
 #include "jlang_object_string.h"
@@ -230,6 +231,7 @@ void jl_assign(jl_object_t *target, jl_object_t *source)
   {
     return;
   }
+  printf("%i\n", target->is_const);
   target->data = source->data;
   target->type = source->type;
 }
