@@ -1,6 +1,8 @@
+print("Test script made to test basic functionality of jLang.\n");
+print("\t Jon Felix Jennemann\n")
 fn multiplyByCool(const num)
 {
-  num * 1337;
+  print("cool factor: " .. num * 1337);
 }
 
 var number = 0; 
@@ -14,5 +16,4 @@ while(number < 20)
   number += 3;
 }
 number = number * multiplier;
-number;
 multiplyByCool(number);

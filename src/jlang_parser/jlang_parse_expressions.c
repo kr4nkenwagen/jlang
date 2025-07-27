@@ -5,6 +5,7 @@
 #include "jlang_parse_function.h"
 #include "jlang_parse_expressions.h"
 #include "jlang_parse_logic.h"
+#include "../jlang_predefined_functions/jlang_print.h"
 #include "../jlang_token/jlang_token.h"
 #include "../jlang_token/jlang_token_list.h"
 #include "../jlang_syntax/jlang_syntax.h"
@@ -21,6 +22,9 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   jl_syntax_t *syntax = jl_syntax_new();
   switch(token->type)
   {
+    case RIGHT_PAREN:
+      free(syntax);
+      return NULL;
     case LEFT_BRACKET:
       free(syntax);
       return parse_array_declaration(tokens);
@@ -53,7 +57,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       return NULL;
   }
   free(syntax);
-  err_unexpected_syntax(token);
+  //err_unexpected_syntax(token);
   return NULL;
 }
 
@@ -61,6 +65,8 @@ jl_syntax_t *parse_statement(jl_token_list_t *tokens)
 {
   switch(jl_token_list_peek(tokens, 0)->type)
   {
+    case PRINT:
+      return parse_function_print(tokens);
     case FUNCTION:
       return parse_function(tokens);
     case WHILE:
@@ -80,8 +86,8 @@ jl_syntax_t *parse_string_operations(jl_token_list_t * tokens)
   jl_token_t *token = jl_token_list_peek(tokens, 0);
   if(token != NULL && (
      token->type == COLON || 
-     token->type == COLON_HAT ||
-     token->type == DOT_DOT))
+     token->type == COLON_HAT 
+  ))
   {
     jl_token_list_advance(tokens);
     jl_syntax_t *op = jl_syntax_new();
@@ -146,7 +152,9 @@ jl_syntax_t *parse_additive(jl_token_list_t * tokens)
   jl_token_t *token = jl_token_list_peek(tokens, 0);
   if(token != NULL && (
         token->type == PLUS || 
-        token->type == MINUS))
+        token->type == MINUS ||
+        token->type == DOT_DOT
+  ))
   {
     jl_token_list_advance(tokens);
     jl_syntax_t *op = jl_syntax_new();
