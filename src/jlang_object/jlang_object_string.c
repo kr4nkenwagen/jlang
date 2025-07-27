@@ -1,11 +1,24 @@
 #include <string.h>
 #include <stdio.h>
-#include <math.h>
 #include "jlang_object.h"
+
+int int_length(int i)
+{
+  if(i >= 1000000000) return 10;
+  if(i >= 100000000) return 9;
+  if(i >= 10000000) return 8;
+  if(i >= 1000000) return 7;
+  if(i >= 100000) return 6;
+  if(i >= 10000) return 5;
+  if(i >= 1000) return 4;
+  if(i >= 100) return 3;
+  if(i >= 10) return 2;
+  return 1;
+}
 
 char *int_to_number(int num)
 {
-  size_t size = (int)log10(num) * sizeof(char) + 1;
+  size_t size = int_length(num);
   char *word = malloc(size);
   sprintf(word, "%d", num);
   return word;
