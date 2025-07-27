@@ -1,21 +1,18 @@
-"This is a string"
-({*+-})
-'This is also a string'
-and
-for
-if
-  else
-    false
-    true
-    while
-      return
-      function
-      var
-AND
-123
-2
-1.321
-.123
-error #this is a comment
-#this is a comment#
-test
+fn multiplyByCool(const num)
+{
+  num * 1337;
+}
+
+var number = 0; 
+const multiplier = 2;
+if(number == 0)
+{
+  number += 5;
+}
+while(number < 20)
+{
+  number += 3;
+}
+number = number * multiplier;
+number;
+multiplyByCool(number);
