@@ -52,9 +52,9 @@ jl_object_t *jl_equals(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(a->data.v_bool == b->data.v_bool);
     }
   }
-  if(a->type == STRING)
+  if(a->type == STRING_OBJECT)
   {
-    if(b->type == STRING)
+    if(b->type == STRING_OBJECT)
     {
       return jl_new_bool(strcmp(a->data.v_string, b->data.v_string) == 0);
     }
@@ -120,9 +120,9 @@ jl_object_t *jl_not_equals(jl_object_t *a, jl_object_t *b)
       return jl_new_bool(a->data.v_bool != b->data.v_bool);
     }
   }
-  if(a->type == STRING)
+  if(a->type == STRING_OBJECT)
   {
-    if(b->type == STRING)
+    if(b->type == STRING_OBJECT)
     {
       return jl_new_bool(strcmp(a->data.v_string, b->data.v_string) != 0);
     }

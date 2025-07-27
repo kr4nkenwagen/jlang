@@ -15,7 +15,7 @@
 //*******************
 int count_syntax(jl_syntax_t *syntax, int num)
 { 
-  if(syntax->token->type == NUMBER || syntax->token->type == STRING || syntax->token->type == IDENTIFIER)
+  if(syntax->token->type == NUMBER || syntax->token->type == STRING_OBJECT || syntax->token->type == IDENTIFIER)
   {
     printf("syntax level: %i token: %i literal: %s\n", num, syntax->token->type, syntax->token->literal); 
   }

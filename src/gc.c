@@ -42,7 +42,7 @@ void trace(vm_t *vm)
     {
       case INT:
       case FLOAT:
-      case STRING:
+      case STRING_OBJECT:
         break;
       case ARRAY:
         for(size_t i = 0; i < obj->data.v_array->size; i++)

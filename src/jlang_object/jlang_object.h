@@ -3,7 +3,7 @@
 typedef enum jl_object_type {
   INT,
   FLOAT,
-  STRING,
+  STRING_OBJECT,
   ARRAY,
   VECTOR,
   NIL_OBJECT,

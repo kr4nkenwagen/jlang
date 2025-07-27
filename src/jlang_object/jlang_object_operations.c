@@ -18,7 +18,7 @@ jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
     {
       return jl_new_int(a->data.v_int + b->data.v_int);
     }
-    if(b->type == STRING)
+    if(b->type == STRING_OBJECT)
     {
       char *num = int_to_number(a->data.v_int);
       return jl_new_string(join_string(num, b->data.v_string));
@@ -35,9 +35,9 @@ jl_object_t *jl_add(jl_object_t *a, jl_object_t *b)
       return jl_new_float(a->data.v_float + b->data.v_float);
     }
   }
-  if(a->type == STRING)
+  if(a->type == STRING_OBJECT)
   {
-    if(b->type == STRING)
+    if(b->type == STRING_OBJECT)
     {
       return jl_new_string(join_string(a->data.v_string, b->data.v_string));
     }
@@ -78,9 +78,9 @@ jl_object_t *jl_subtract(jl_object_t *a, jl_object_t *b)
       return jl_new_float(a->data.v_float - b->data.v_float);
     }
   }
-  if(a->type == STRING)
+  if(a->type == STRING_OBJECT)
   {
-    if(b->type == STRING)
+    if(b->type == STRING_OBJECT)
     {
       jl_strip_instances_from_string(a, b);
       return a;
@@ -122,7 +122,7 @@ jl_object_t *jl_multiply(jl_object_t *a, jl_object_t *b)
       return jl_new_float(a->data.v_float * b->data.v_float);
     }
   }
-  if(a->type == STRING)
+  if(a->type == STRING_OBJECT)
   {
     if(b->type == INT)
     {
@@ -185,7 +185,7 @@ jl_object_t *jl_divide(jl_object_t *a, jl_object_t *b)
      return jl_new_float(a->data.v_float / b->data.v_float);
     }
   }
-  if(a->type == STRING)
+  if(a->type == STRING_OBJECT)
   {
     if(b->type == INT)
     {
@@ -209,7 +209,7 @@ jl_object_t *jl_modulus(jl_object_t *a, jl_object_t *b)
       return jl_new_int(a->data.v_int % b->data.v_int);
     }
   }
-  if(a->type == STRING)
+  if(a->type == STRING_OBJECT)
   {
     if(b->type == INT)
     {
@@ -246,7 +246,7 @@ void ref_free(jl_object_t *obj)
     case FLOAT:
       jl_object_free(obj);
       break;
-    case STRING:
+    case STRING_OBJECT:
       jl_object_free(obj);
       break;
     case ARRAY:

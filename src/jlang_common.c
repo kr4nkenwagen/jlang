@@ -21,7 +21,7 @@ void jl_print_object(jl_object_t *target)
     case FLOAT:
      printf("Object: %d\n", target->data.v_float);
     break;
-    case STRING:
+    case STRING_OBJECT:
      printf("Object: %s\n", target->data.v_string);
     break;
     case BOOLEAN:

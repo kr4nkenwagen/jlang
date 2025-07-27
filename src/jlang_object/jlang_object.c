@@ -62,7 +62,7 @@ jl_object_t *jl_new_string(char *value)
   }
   strcpy(obj->data.v_string, value);
   obj->is_marked = false;
-  obj->type = STRING;
+  obj->type = STRING_OBJECT;
   obj->refcount = 1;
   return obj;
 }
@@ -157,7 +157,7 @@ size_t jl_length(jl_object_t *obj)
     case FLOAT:
       return 1;
       break;
-    case STRING:
+    case STRING_OBJECT:
       return strlen(obj->data.v_string); 
       break;
     case ARRAY:
@@ -199,7 +199,7 @@ void jl_object_free(jl_object_t *obj)
     case INT:
     case FLOAT:
       break;
-    case STRING:
+    case STRING_OBJECT:
       free(obj->data.v_string);
       break;
     case ARRAY:
