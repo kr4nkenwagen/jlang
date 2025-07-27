@@ -12,19 +12,19 @@ void jl_print_object(jl_object_t *target)
     return;
   }
   switch (target->type) {  
-    case NIL_OBJECT:
+    case NULL_OBJECT:
       printf("Object: NULL");
     break;
-    case INT:
+    case INT_OBJECT:
      printf("Object: %i\n", target->data.v_int);
     break;
-    case FLOAT:
+    case FLOAT_OBJECT:
      printf("Object: %d\n", target->data.v_float);
     break;
     case STRING_OBJECT:
      printf("Object: %s\n", target->data.v_string);
     break;
-    case BOOLEAN:
+    case BOOL_OBJECT:
       if(target->data.v_bool == true)
       {
         printf("Object: true\n", target->data.v_string);
@@ -32,7 +32,7 @@ void jl_print_object(jl_object_t *target)
       }
       printf("Object: false\n", target->data.v_string);
     break;
-    case ARRAY:
+    case ARRAY_OBJECT:
       printf("Object: array(%d)\n", target->data.v_array->count);
       print_array_content(target);
     break;

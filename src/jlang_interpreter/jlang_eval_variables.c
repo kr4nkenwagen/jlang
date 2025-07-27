@@ -64,7 +64,7 @@ jl_object_t *eval_array_identifier(jl_syntax_t *syntax, vm_t *vm, jl_object_t *o
     return NULL;
   }
   index = jl_array_get(index, 0);
-  if(index->type != INT)
+  if(index->type != INT_OBJECT)
   {
     err_expected_array_index(syntax->token);
     return NULL;
@@ -80,7 +80,7 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
     err_identifier_does_not_exist(syntax->token);
     return NULL;
   }
-  if(obj->type == ARRAY)
+  if(obj->type == ARRAY_OBJECT)
   {
     eval_array_identifier(syntax, vm, obj);
   }

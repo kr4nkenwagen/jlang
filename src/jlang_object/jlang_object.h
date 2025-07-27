@@ -1,13 +1,13 @@
 #include <stdlib.h>
 
 typedef enum jl_object_type {
-  INT,
-  FLOAT,
+  INT_OBJECT,
+  FLOAT_OBJECT,
   STRING_OBJECT,
-  ARRAY,
-  VECTOR,
-  NIL_OBJECT,
-  BOOLEAN,
+  ARRAY_OBJECT,
+  VECTOR_OBJECT,
+  NULL_OBJECT,
+  BOOL_OBJECT,
   FUNCTION_OBJECT
 }jl_object_type_t;
 

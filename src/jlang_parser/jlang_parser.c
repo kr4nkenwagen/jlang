@@ -14,8 +14,13 @@
 jl_program_t *parse_branch(jl_token_list_t *tokens)
 {
   jl_program_t *program = jl_new_program();
+  while(jl_token_list_peek(tokens, 0)->type == TERMINATOR)
+  {
+    jl_token_list_advance(tokens);
+  }
   if(jl_token_list_peek(tokens, 0)->type != LEFT_BRACE)
   {
+    err_bracket_not_opened(jl_token_list_peek(tokens, 0));
     return NULL;
   }
   jl_token_list_advance(tokens);

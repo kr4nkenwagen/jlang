@@ -27,6 +27,11 @@ void err_bracket_not_closed(jl_token_t *token)
   fprintf(stderr, "[ERROR:%i%i] Bracket not closed\n", token->line, token->column);
 }
 
+void err_bracket_not_opened(jl_token_t *token)
+{
+  fprintf(stderr, "[ERROR:%i%i] Bracket not opened\n", token->line, token->column);
+}
+
 void err_end_of_tokens(jl_token_t *token)
 {
   fprintf(stderr, "[ERROR:%i:%i] Unexpected end of tokens\n", token->line, token->column);

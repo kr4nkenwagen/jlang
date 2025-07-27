@@ -12,7 +12,7 @@ jl_object_t *jl_new_int(int value)
     return NULL;
   }
   obj->is_marked = false;
-  obj->type = INT;
+  obj->type = INT_OBJECT;
   obj->data.v_int = value;
   obj->refcount = 1;
   return obj;
@@ -26,7 +26,7 @@ jl_object_t *jl_new_bool(bool value)
     return NULL;
   }
   obj->is_marked = false;
-  obj->type = BOOLEAN;
+  obj->type = BOOL_OBJECT;
   obj->data.v_bool = value;
   obj->refcount = 1;
   return obj;
@@ -40,7 +40,7 @@ jl_object_t *jl_new_float(float value)
     return NULL;
   }
   obj->is_marked = false;
-  obj->type = FLOAT;
+  obj->type = FLOAT_OBJECT;
   obj->data.v_float = value;
   obj->refcount = 1;
   return obj;
@@ -85,7 +85,7 @@ jl_object_t *jl_new_array()
     return NULL;
   }
   obj->is_marked = false;
-  obj->type = ARRAY; 
+  obj->type = ARRAY_OBJECT; 
   obj->data.v_array->count = 0;
   obj->refcount = 1;
   obj->data.v_array->size = 8;
@@ -100,7 +100,7 @@ jl_object_t *jl_new_vector(jl_object_t *x, jl_object_t *y, jl_object_t *z)
     return NULL;
   }
   obj->is_marked = false;
-  obj->type = VECTOR;
+  obj->type = VECTOR_OBJECT;
   obj->refcount = 1;
   obj->data.v_vector->x = x;
   obj->data.v_vector->y = y;
@@ -130,7 +130,7 @@ jl_object_t *jl_new_null()
     return NULL;
   }
   obj->is_marked = false;
-  obj->type = NIL_OBJECT;
+  obj->type = NULL_OBJECT;
   obj->refcount = 1;
   return obj;
 }
@@ -141,7 +141,7 @@ void jl_object_set_null(jl_object_t *obj)
   {
     return;
   }
-  obj->type = NIL_OBJECT;
+  obj->type = NULL_OBJECT;
 }
 
 size_t jl_length(jl_object_t *obj)
@@ -152,14 +152,14 @@ size_t jl_length(jl_object_t *obj)
   }
   switch(obj->type)
   {
-    case INT:
-    case FLOAT:
+    case INT_OBJECT:
+    case FLOAT_OBJECT:
       return 1;
       break;
     case STRING_OBJECT:
       return strlen(obj->data.v_string); 
       break;
-    case ARRAY:
+    case ARRAY_OBJECT:
       return obj->data.v_array->size;
   }
   return -1;
@@ -195,13 +195,13 @@ void jl_object_free(jl_object_t *obj)
   }
   switch(obj->type)
   {
-    case INT:
-    case FLOAT:
+    case INT_OBJECT:
+    case FLOAT_OBJECT:
       break;
     case STRING_OBJECT:
       free(obj->data.v_string);
       break;
-    case ARRAY:
+    case ARRAY_OBJECT:
       for(size_t i = 0; i < obj->data.v_array->size; i++)
       {
         jl_object_free(obj->data.v_array->elements[i]);

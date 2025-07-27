@@ -5,6 +5,7 @@ void err_eof_in_string(int line, int column);
 void err_src_null();
 void err_expected_identifier_or_literal(jl_token_t *token);
 void err_bracket_not_closed(jl_token_t *token);
+void err_bracket_not_opened(jl_token_t *token);
 void err_end_of_tokens(jl_token_t *token);
 void err_unexpected_syntax(jl_token_t *token);
 void err_unassigned_const(jl_token_t *token);

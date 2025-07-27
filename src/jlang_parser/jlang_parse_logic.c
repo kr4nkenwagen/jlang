@@ -17,6 +17,10 @@ jl_syntax_t  *parse_if(jl_token_list_t *tokens)
   parent->token = jl_token_list_peek(tokens, 0);
   jl_token_list_advance(tokens);
   parent->value = parse_expression(tokens);
+  while(jl_token_list_peek(tokens, 0)->type == TERMINATOR)
+  {
+    jl_token_list_advance(tokens);
+  }
   if(jl_token_list_peek(tokens, 0)->type != LEFT_BRACE)
   {
     err_unexpected_syntax(jl_token_list_peek(tokens, 0));

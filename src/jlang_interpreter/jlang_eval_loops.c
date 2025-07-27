@@ -12,7 +12,7 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
     return;
   }
   jl_object_t *condition = eval_primary_expression(syntax->value, vm);
-  if(condition->type != BOOLEAN)
+  if(condition->type != BOOL_OBJECT)
   {
     err_expected_boolean_condition(syntax->token);
     return;

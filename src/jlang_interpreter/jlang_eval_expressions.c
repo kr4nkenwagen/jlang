@@ -44,7 +44,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
   if(syntax->token->type == COLON)
   {
-    if(right_hand_side->type == INT)
+    if(right_hand_side->type == INT_OBJECT)
     {
       return jl_substring(left_hand_side, 0, right_hand_side->data.v_int);
     }
@@ -60,7 +60,7 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   else if(syntax->token->type == COLON_HAT)
   {
-    if(right_hand_side->type == INT)
+    if(right_hand_side->type == INT_OBJECT)
     {
       size_t size = jl_length(left_hand_side);
       return jl_substring(left_hand_side, size - right_hand_side->data.v_int, right_hand_side->data.v_int);
@@ -92,7 +92,7 @@ jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm)
     return NULL;
   }
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
-  if(right_hand_side != NULL || right_hand_side->type == BOOLEAN)
+  if(right_hand_side != NULL || right_hand_side->type == BOOL_OBJECT)
   {
     return jl_new_bool(!right_hand_side->data.v_bool);
   }
@@ -136,10 +136,10 @@ jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, vm_t *vm)
 
 bool divide_by_zero(jl_object_t *a, jl_object_t *b)
 {
-  if((a->type == INT && a->data.v_int == 0) ||
-   (a->type == FLOAT && a->data.v_float == 0) ||
-   (b->type == INT && b->data.v_int == 0) ||
-   (b->type == FLOAT && b->data.v_float == 0))
+  if((a->type == INT_OBJECT && a->data.v_int == 0) ||
+   (a->type == FLOAT_OBJECT && a->data.v_float == 0) ||
+   (b->type == INT_OBJECT && b->data.v_int == 0) ||
+   (b->type == FLOAT_OBJECT && b->data.v_float == 0))
   {
     return true;
   }  

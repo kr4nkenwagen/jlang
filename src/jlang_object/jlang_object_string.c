@@ -166,7 +166,7 @@ void jl_strip_instances_from_string(jl_object_t *target, jl_object_t *instance)
 
 void jl_shorten_string(jl_object_t *target, jl_object_t *length)
 {
-  if(target == NULL || length <= 0 || target->type != STRING_OBJECT || length->type != INT)
+  if(target == NULL || length <= 0 || target->type != STRING_OBJECT || length->type != INT_OBJECT)
   {
     return;
   }
@@ -180,7 +180,7 @@ void jl_shorten_string(jl_object_t *target, jl_object_t *length)
 
 void jl_multiply_string(jl_object_t *target, jl_object_t *multiplier)
 {
-  if(target == NULL || multiplier == NULL || target->type != STRING_OBJECT || multiplier->type != INT)
+  if(target == NULL || multiplier == NULL || target->type != STRING_OBJECT || multiplier->type != INT_OBJECT)
   {
     return;
   }
@@ -198,7 +198,7 @@ void jl_multiply_string(jl_object_t *target, jl_object_t *multiplier)
 
 void jl_divide_string(jl_object_t *target, jl_object_t *divider)
 {
-  if(target == NULL || divider == NULL || target->type != STRING_OBJECT || divider->type != INT)
+  if(target == NULL || divider == NULL || target->type != STRING_OBJECT || divider->type != INT_OBJECT)
   {
     return;
   }
@@ -213,7 +213,7 @@ void jl_divide_string(jl_object_t *target, jl_object_t *divider)
 
 void jl_modulus_string(jl_object_t *target, jl_object_t *modulus)
 {
-  if(target == NULL || modulus == NULL || target->type != STRING_OBJECT || modulus->type != INT)
+  if(target == NULL || modulus == NULL || target->type != STRING_OBJECT || modulus->type != INT_OBJECT)
   {
     return;
   }

@@ -40,11 +40,11 @@ void trace(vm_t *vm)
     jl_object_t *obj = stack_pop(gray_objs);
     switch (obj->type)
     {
-      case INT:
-      case FLOAT:
+      case INT_OBJECT:
+      case FLOAT_OBJECT:
       case STRING_OBJECT:
         break;
-      case ARRAY:
+      case ARRAY_OBJECT:
         for(size_t i = 0; i < obj->data.v_array->size; i++)
         {
           if(obj->data.v_array->elements[i]->is_marked)

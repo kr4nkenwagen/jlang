@@ -42,7 +42,7 @@ jl_syntax_t *parse_variable_declarations(jl_token_list_t *tokens)
         return NULL;
       }
       syntax->value = jl_syntax_new();
-      syntax->value->token = jl_token_new(NULL, NIL, "null");
+      syntax->value->token = jl_token_new(NULL, NULL_OBJECT, "null");
     }
     token = jl_token_list_peek(tokens, 0);
     prev_syntax->left = syntax;
