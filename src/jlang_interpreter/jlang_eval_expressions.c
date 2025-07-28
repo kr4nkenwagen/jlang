@@ -1,7 +1,7 @@
 #include <string.h>
 #include "jlang_interpreter.h"
 #include "jlang_eval_variables.h"
-#include "jlang_eval_loops.h"
+#include "jlang_eval_logic.h"
 #include "jlang_eval_function.h"
 #include "../jlang_predefined_functions/jlang_print.h"
 #include "../jlang_program.h"
@@ -227,6 +227,9 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   switch(syntax->token->type)
   {
+    case FOR:
+      eval_for(syntax, vm);
+      return NULL;
     case PRINT: 
       jl_print(eval_primary_expression(syntax->value, vm));
       return NULL;

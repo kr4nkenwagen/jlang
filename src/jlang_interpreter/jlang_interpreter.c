@@ -1,5 +1,5 @@
 #include <string.h>
-#include "jlang_eval_loops.h"
+#include "jlang_eval_logic.h"
 #include "jlang_eval_variables.h"
 #include "jlang_eval_function.h"
 #include "jlang_eval_expressions.h"
@@ -48,22 +48,4 @@ void interprete_branch(jl_syntax_t *syntax, vm_t *vm)
   interprete(syntax->branch, vm);
   vm_pop_frame(vm);
 }
-void eval_if(jl_syntax_t *syntax, vm_t *vm)
-{
-  while(
-    syntax != NULL && (
-    syntax->token->type == IF || 
-    syntax->token->type == ELSE_IF || 
-    syntax->token->type == ELSE))
-  {
-    jl_object_t *condition = eval_primary_expression(syntax->value, vm);
-    if(syntax->token->type == ELSE || condition->data.v_bool == true)
-    {
-      interprete_branch(syntax, vm);
-      return;
-    }
-    syntax = syntax->right;
-  }
-}
-
 
