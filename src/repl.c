@@ -74,6 +74,7 @@ char *user_input()
     if(x == '\n')
     {
       input[count] == '\0';
+      fflush(stdout); 
       break;
     }
     input[count++] = x;
