@@ -24,10 +24,14 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
   }
   for(int i = 0; i < program->count; i++)
   {
+    if(program->exit)
+    {
+      return program->ret_value;
+    }
     jl_print_object(eval_primary_expression(program->statements[i], vm, program));
   }
 }
-void interprete_branch(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
 {
   vm_push_frame(vm, stack_new());
   if(syntax->args !=NULL)
@@ -47,5 +51,6 @@ void interprete_branch(jl_syntax_t *syntax, vm_t *vm)
   }
   interprete(syntax->branch, vm);
   vm_pop_frame(vm);
+  return ((jl_program_t *)syntax->branch)->ret_value;
 }
 

@@ -3,6 +3,7 @@
 #include "jlang_object/jlang_object.h"
 
 typedef struct jl_program {
+  bool exit;
   jl_syntax_t **statements;
   size_t size;
   int count;

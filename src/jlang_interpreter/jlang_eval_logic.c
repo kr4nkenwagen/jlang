@@ -67,3 +67,8 @@ void eval_if(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 }
 
 
+void eval_return(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
+{
+  program->exit = true;
+  program->ret_value = eval_primary_expression(syntax->value, vm, program);
+}

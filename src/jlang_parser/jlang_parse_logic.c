@@ -74,3 +74,12 @@ jl_syntax_t *parse_for(jl_token_list_t *tokens)
   syntax->branch = parse_branch(tokens);
   return syntax; 
 }
+
+jl_syntax_t *parse_return(jl_token_list_t *tokens)
+{
+  jl_syntax_t *syntax = jl_syntax_new();
+  syntax->token = jl_token_list_peek(tokens, 0);
+  jl_token_list_advance(tokens);
+  syntax->value = parse_expression(tokens);
+  return syntax;
+}

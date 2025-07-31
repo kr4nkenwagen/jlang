@@ -229,6 +229,9 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t
   }
   switch(syntax->token->type)
   {
+    case RETURN:
+      eval_return(syntax, vm, program);
+      return NULL;
     case PRINT_LINE:
       jl_println(eval_primary_expression(syntax->value, vm, program));
       return NULL;

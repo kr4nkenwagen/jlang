@@ -67,6 +67,8 @@ jl_syntax_t *parse_statement(jl_token_list_t *tokens)
 {
   switch(jl_token_list_peek(tokens, 0)->type)
   {
+    case RETURN:
+      return parse_return(tokens);
     case PRINT_LINE:
       return parse_function_print_line(tokens);
     case FOR:

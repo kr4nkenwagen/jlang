@@ -83,7 +83,7 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm, jl_program_t *progra
   }
   if(obj->type == ARRAY_OBJECT)
   {
-    eval_array_identifier(syntax, vm, obj, program);
+    return eval_array_identifier(syntax, vm, obj, program);
   }
   if(obj->type == FUNCTION_OBJECT)
   {
@@ -94,7 +94,7 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm, jl_program_t *progra
     }
     ((jl_syntax_t *)obj->data.v_funct)->value = syntax->left;
     
-    eval_function_identifier(obj->data.v_funct, vm, program);
+    return eval_function_identifier(obj->data.v_funct, vm, program);
   }
   return obj;
 }
