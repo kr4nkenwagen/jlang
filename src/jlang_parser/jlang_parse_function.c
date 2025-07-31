@@ -120,3 +120,12 @@ jl_syntax_t *parse_function_print(jl_token_list_t *tokens)
   parent->value = parse_expression(tokens);
   return parent;
 }
+
+jl_syntax_t *parse_function_print_line(jl_token_list_t *tokens)
+{
+  jl_syntax_t *parent = jl_syntax_new();
+  parent->token = jl_token_list_peek(tokens, 0);
+  jl_token_list_advance(tokens);
+  parent->value = parse_expression(tokens);
+  return parent;
+}

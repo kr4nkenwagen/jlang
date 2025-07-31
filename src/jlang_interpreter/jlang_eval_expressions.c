@@ -4,6 +4,7 @@
 #include "jlang_eval_logic.h"
 #include "jlang_eval_function.h"
 #include "../jlang_predefined_functions/jlang_print.h"
+#include "../jlang_predefined_functions/jlang_println.h"
 #include "../jlang_program.h"
 #include "../jlang_common.h"
 #include "../jlang_error.h"
@@ -227,6 +228,9 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
   }
   switch(syntax->token->type)
   {
+    case PRINT_LINE:
+      jl_println(eval_primary_expression(syntax->value, vm));
+      return NULL;
     case FOR:
       eval_for(syntax, vm);
       return NULL;

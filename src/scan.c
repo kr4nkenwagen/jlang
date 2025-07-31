@@ -262,7 +262,11 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     }
   case 'p':
   case 'P':
-    if(is_next_word_match(src, "print"))
+    if(is_next_word_match(src, "println"))
+    {
+      return jl_token_new(src, PRINT_LINE, consume_word(src));
+    }
+    else if(is_next_word_match(src, "print"))
     {
       return jl_token_new(src, PRINT, consume_word(src));
     }
@@ -473,7 +477,7 @@ jl_token_list_t *scan(jl_source_code_t *src)
       case '\n':
       case ';':
         jl_token_list_add(token_list, jl_token_new(src, TERMINATOR, ";"));
-        break;
+      break;
       case '\t':
       case ' ':
       break;
