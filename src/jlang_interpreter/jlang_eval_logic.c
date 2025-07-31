@@ -3,15 +3,16 @@
 #include "../jlang_syntax/jlang_syntax.h"
 #include "../jlang_error.h"
 #include "../vm.h"
-#include "../jlang_object/jlang_object.h"
+#include "../jlang_object/jlang_object.h" 
+#include "../jlang_program.h"
 
-void eval_while(jl_syntax_t *syntax, vm_t *vm)
+void eval_while(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
     return;
   }
-  jl_object_t *condition = eval_primary_expression(syntax->value, vm);
+  jl_object_t *condition = eval_primary_expression(syntax->value, vm, program);
   if(condition->type != BOOL_OBJECT)
   {
     err_expected_boolean_condition(syntax->token);
@@ -20,19 +21,19 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
   while(condition->data.v_bool == true)
   {
     interprete_branch(syntax, vm);
-    condition = eval_primary_expression(syntax->value, vm);
+    condition = eval_primary_expression(syntax->value, vm, program);
   }
 }
 
-void eval_for(jl_syntax_t *syntax, vm_t *vm)
+void eval_for(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
     return;
   }
   vm_push_frame(vm, stack_new());
-  eval_primary_expression(syntax->left, vm);
-  jl_object_t *condition = eval_primary_expression(syntax->value, vm);
+  eval_primary_expression(syntax->left, vm, program);
+  jl_object_t *condition = eval_primary_expression(syntax->value, vm, program);
   if(condition->type != BOOL_OBJECT)
   {
     err_expected_boolean_condition(syntax->token);
@@ -41,13 +42,13 @@ void eval_for(jl_syntax_t *syntax, vm_t *vm)
   while(condition->data.v_bool == true)
   {
     interprete_branch(syntax, vm);
-    eval_primary_expression(syntax->right, vm);
-    condition = eval_primary_expression(syntax->value, vm);
+    eval_primary_expression(syntax->right, vm, program);
+    condition = eval_primary_expression(syntax->value, vm, program);
   }
   vm_pop_frame(vm);
 }
 
-void eval_if(jl_syntax_t *syntax, vm_t *vm)
+void eval_if(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   while(
     syntax != NULL && (
@@ -55,7 +56,7 @@ void eval_if(jl_syntax_t *syntax, vm_t *vm)
     syntax->token->type == ELSE_IF || 
     syntax->token->type == ELSE))
   {
-    jl_object_t *condition = eval_primary_expression(syntax->value, vm);
+    jl_object_t *condition = eval_primary_expression(syntax->value, vm, program);
     if(syntax->token->type == ELSE || condition->data.v_bool == true)
     {
       interprete_branch(syntax, vm);

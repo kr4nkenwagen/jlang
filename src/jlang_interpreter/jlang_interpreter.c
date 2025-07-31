@@ -24,7 +24,7 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
   }
   for(int i = 0; i < program->count; i++)
   {
-    jl_print_object(eval_primary_expression(program->statements[i], vm));
+    jl_print_object(eval_primary_expression(program->statements[i], vm, program));
   }
 }
 void interprete_branch(jl_syntax_t *syntax, vm_t *vm)
@@ -33,7 +33,7 @@ void interprete_branch(jl_syntax_t *syntax, vm_t *vm)
   if(syntax->args !=NULL)
   {
     interprete(syntax->args, vm);
-    jl_object_t *arg_vals = eval_array_declaration(syntax->value, vm);
+    jl_object_t *arg_vals = eval_array_declaration(syntax->value, vm, syntax->branch);
     stack_t * curr_stack = vm_curr_frame(vm);
     if(curr_stack->count - curr_stack->parent_references != arg_vals->data.v_array->count)
     {

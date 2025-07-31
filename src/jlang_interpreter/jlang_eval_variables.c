@@ -9,8 +9,9 @@
 #include "../jlang_object/jlang_object_comparison.h"
 #include "../jlang_object/jlang_object_string.h"
 #include "../jlang_object/jlang_object_array.h"
+#include "../jlang_program.h"
 
-void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
+void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
@@ -25,7 +26,7 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
       err_redeclaration(syntax->token);
       return;
     }
-    jl_object_t *obj = eval_primary_expression(syntax->value, vm);
+    jl_object_t *obj = eval_primary_expression(syntax->value, vm, program);
     obj->name = syntax->token->literal;
     obj->is_const = is_const;
     stack_push(vm_curr_frame(vm), obj);
@@ -33,7 +34,7 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm)
   }
 }
 
-jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
@@ -43,7 +44,7 @@ jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm)
   syntax = syntax->left;
   while(syntax != NULL)
   {
-    jl_object_t *obj = eval_primary_expression(syntax, vm);
+    jl_object_t *obj = eval_primary_expression(syntax, vm, program);
     jl_array_set(arr, arr->data.v_array->count, obj);
     syntax = syntax->left; 
   }
@@ -51,13 +52,13 @@ jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm)
   return arr;
 }
 
-jl_object_t *eval_array_identifier(jl_syntax_t *syntax, vm_t *vm, jl_object_t *obj)
+jl_object_t *eval_array_identifier(jl_syntax_t *syntax, vm_t *vm, jl_object_t *obj, jl_program_t *program)
 {
   if(syntax->right == NULL || syntax->right->token->type != LEFT_BRACKET)
   {
     return obj;
   }
-  jl_object_t * index = eval_array_declaration(syntax->right, vm);
+  jl_object_t * index = eval_array_declaration(syntax->right, vm, program);
   if(index == NULL || index->data.v_array->count != 1)
   {
     err_expected_array_index(syntax->token);
@@ -72,7 +73,7 @@ jl_object_t *eval_array_identifier(jl_syntax_t *syntax, vm_t *vm, jl_object_t *o
   return jl_array_get(obj, index->data.v_int);
 }
 
-jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   jl_object_t *obj = jl_stack_get(vm_curr_frame(vm), syntax->token->literal);
   if(obj == NULL)
@@ -82,7 +83,7 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
   }
   if(obj->type == ARRAY_OBJECT)
   {
-    eval_array_identifier(syntax, vm, obj);
+    eval_array_identifier(syntax, vm, obj, program);
   }
   if(obj->type == FUNCTION_OBJECT)
   {
@@ -93,7 +94,7 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm)
     }
     ((jl_syntax_t *)obj->data.v_funct)->value = syntax->left;
     
-    eval_function_identifier(obj->data.v_funct, vm);
+    eval_function_identifier(obj->data.v_funct, vm, program);
   }
   return obj;
 }

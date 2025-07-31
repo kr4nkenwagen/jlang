@@ -16,8 +16,9 @@
 #include "../jlang_object/jlang_object_comparison.h"
 #include "../jlang_object/jlang_object_string.h"
 #include "../jlang_object/jlang_object_array.h"
+#include "../jlang_program.h"
 
-jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm);
+jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program);
 
 jl_object_t *eval_number(jl_syntax_t *syntax)
 {
@@ -36,14 +37,14 @@ jl_object_t *eval_number(jl_syntax_t *syntax)
   return NULL;
 }
 
-jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
     return NULL;
   }
-  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
-  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm, program);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm, program);
   if(syntax->token->type == COLON)
   {
     if(right_hand_side->type == INT_OBJECT)
@@ -87,13 +88,13 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm)
   }
 }
 
-jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
     return NULL;
   }
-  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm, program);
   if(right_hand_side != NULL || right_hand_side->type == BOOL_OBJECT)
   {
     return jl_new_bool(!right_hand_side->data.v_bool);
@@ -101,14 +102,14 @@ jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm)
   err_illegal_operation(syntax->token);
 }
 
-jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_comparison_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
     return NULL;
   }
-  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
-  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm, program);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm, program);
   if(syntax->token->type == EQUAL_EQUAL)
   {
     return jl_equals(left_hand_side, right_hand_side);
@@ -148,14 +149,14 @@ bool divide_by_zero(jl_object_t *a, jl_object_t *b)
   return false;
 }
 
-jl_object_t *eval_binary_expression(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_binary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
     return NULL;
   }
-  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
-  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm, program);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm, program);
   if(syntax->token->type == PLUS)
   {
     return jl_add(left_hand_side, right_hand_side);
@@ -183,14 +184,14 @@ jl_object_t *eval_binary_expression(jl_syntax_t *syntax, vm_t *vm)
   return NULL;
 }
 
-void eval_assignment_expression(jl_syntax_t *syntax, vm_t *vm)
+void eval_assignment_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
     return;
   }
-  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm);
-  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm);
+  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm, program);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm, program);
   if(left_hand_side->is_const)
   {
     err_modify_constant(syntax->token);
@@ -220,7 +221,7 @@ void eval_assignment_expression(jl_syntax_t *syntax, vm_t *vm)
   }
 }
 
-jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
+jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
   {
@@ -229,51 +230,51 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
   switch(syntax->token->type)
   {
     case PRINT_LINE:
-      jl_println(eval_primary_expression(syntax->value, vm));
+      jl_println(eval_primary_expression(syntax->value, vm, program));
       return NULL;
     case FOR:
-      eval_for(syntax, vm);
+      eval_for(syntax, vm, program);
       return NULL;
     case PRINT: 
-      jl_print(eval_primary_expression(syntax->value, vm));
+      jl_print(eval_primary_expression(syntax->value, vm, program));
       return NULL;
     case FUNCTION:
-      eval_function_declaration(syntax, vm);
+      eval_function_declaration(syntax, vm, program);
       return NULL;
     case IF:
-      eval_if(syntax, vm);
+      eval_if(syntax, vm, program);
       return NULL;
     case LEFT_BRACKET:
-      return eval_array_declaration(syntax, vm);
+      return eval_array_declaration(syntax, vm, program);
     case WHILE:
-      eval_while(syntax, vm);
+      eval_while(syntax, vm, program);
       return NULL;
     case COLON:
     case COLON_HAT:
     case DOT_DOT:
-      return eval_string_operation_expression(syntax, vm);
+      return eval_string_operation_expression(syntax, vm, program);
     case BANG:
-      return eval_unary_expression(syntax, vm);
+      return eval_unary_expression(syntax, vm, program);
     case EQUAL_EQUAL:
     case BANG_EQUAL:
     case GREATER_EQUAL:
     case LESS_EQUAL:
     case LESS:
     case GREATER:
-      return eval_comparison_expression(syntax, vm);
+      return eval_comparison_expression(syntax, vm, program);
     case EQUAL:
     case PLUS_EQUAL:
     case MINUS_EQUAL:
     case STAR_EQUAL:
     case SLASH_EQUAL:
-      eval_assignment_expression(syntax, vm);
+      eval_assignment_expression(syntax, vm, program);
       return NULL;
     case CONST:
     case VAR:
-      eval_variable_declarations(syntax, vm);
+      eval_variable_declarations(syntax, vm, program);
       return NULL;
     case IDENTIFIER:
-      return eval_identifier(syntax, vm);
+      return eval_identifier(syntax, vm, program);
     case STRING_WRAPPER:
       return jl_new_string(syntax->token->literal);
     case NUMBER:
@@ -289,7 +290,7 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm)
     case STAR:
     case SLASH:
     case MODULUS: 
-      return eval_binary_expression(syntax, vm);
+      return eval_binary_expression(syntax, vm, program);
     default:
       err_interpreter_error(syntax->token);
     break;

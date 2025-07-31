@@ -13,6 +13,7 @@ jl_program_t *jl_new_program()
   program->size = 8;
   program->count = 0;
   program->statements = malloc(sizeof(jl_syntax_t) * program->size);
+  program->ret_value = NULL;
   return program;
 }
 
