@@ -5,7 +5,7 @@
 #include "jlang_source_code.h"
 #include "jlang_token/jlang_token_list.h"
 #include "jlang_program.h"
-#include "repl.h"
+#include "debug.h"
 #include "vm.h"
 
 void execute(char *file)

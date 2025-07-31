@@ -1,5 +1,5 @@
 #include "jlang_object.h"
-#include "../jlang_common.h"
+#include "../debug.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h> 

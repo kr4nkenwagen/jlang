@@ -6,7 +6,7 @@
 #include "../jlang_predefined_functions/jlang_print.h"
 #include "../jlang_predefined_functions/jlang_println.h"
 #include "../jlang_program.h"
-#include "../jlang_common.h"
+#include "../debug.h"
 #include "../jlang_error.h"
 #include "../vm.h"
 #include "../stack.h"

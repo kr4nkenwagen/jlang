@@ -9,62 +9,7 @@
 #include "jlang_syntax/jlang_syntax.h"
 #include "jlang_program.h"
 #include "stack.h"
-
-//*******************
-//* DEBUG FUNCTIONS *
-//*******************
-int count_syntax(jl_syntax_t *syntax, int num)
-{ 
-  if(syntax->token->type == NUMBER || syntax->token->type == STRING_OBJECT || syntax->token->type == IDENTIFIER)
-  {
-    printf("syntax level: %i token: %i literal: %s\n", num, syntax->token->type, syntax->token->literal); 
-  }
-  else
-  {
-    printf("syntax level: %i token: %i\n", num, syntax->token->type); 
-  }
- 
-  num++;
-  if(syntax->left != NULL)
-  {
-    count_syntax(syntax->left, num);
-  }
-  if(syntax->right != NULL)
-  {
-    count_syntax(syntax->right, num); 
-  } 
-  if(syntax->value != NULL)
-  {
-    count_syntax(syntax->value, num);
-  }
-  return num;
-}
-void count_tokens(jl_token_list_t *tokens)
-{
-  for(int i = 0; i < tokens->count; i++)
-  {
-    if(tokens->list[i]->type < 10)
-    {
-    printf("token[%i]->0%i-> %s\n", i, tokens->list[i]->type, tokens->list[i]->literal);
-    }
-    else 
-    {
-    printf("token[%i]->%i-> %s\n", i, tokens->list[i]->type, tokens->list[i]->literal);
-    }
-  }
-  printf("token count: %i\n", tokens->count);
-}
-
-void debug(jl_token_list_t *tokens, jl_program_t *program)
-{
-  printf("tokens =======\n");
-  count_tokens(tokens);
-  for(int i = 0; i < program->count; i++)
-  {
-    printf("program: %i =======\n", i);
-    count_syntax(program->statements[i], 0);
-  }
-}
+#include "debug.h"
 
 char *user_input()
 {

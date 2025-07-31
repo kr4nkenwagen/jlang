@@ -4,7 +4,7 @@
 #include "jlang_eval_function.h"
 #include "jlang_eval_expressions.h"
 #include "../jlang_program.h"
-#include "../jlang_common.h"
+#include "../debug.h"
 #include "../jlang_error.h"
 #include "../vm.h"
 #include "../stack.h"
