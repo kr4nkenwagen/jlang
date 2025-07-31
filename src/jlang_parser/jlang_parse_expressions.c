@@ -53,6 +53,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       }
       jl_token_list_advance(tokens);
       return syntax;
+    case SOFT_TERMINATOR:
     case TERMINATOR:
       free(syntax);
       return NULL;

@@ -60,9 +60,9 @@ jl_syntax_t *parse_line(jl_token_list_t *tokens)
 {
   jl_syntax_t *syntax = NULL;
   jl_syntax_t *prev_syntax = NULL;
-  while(jl_token_list_peek(tokens, 0)->type != TERMINATOR)
+  while(jl_token_list_peek(tokens, 0)->type != TERMINATOR &&
+        jl_token_list_peek(tokens, 0)->type != RIGHT_PAREN)
   {
-    //printf("%i\n", jl_token_list_peek(tokens, 0)->type);
     if(syntax == NULL)
     {
       syntax = parse_statement(tokens);
