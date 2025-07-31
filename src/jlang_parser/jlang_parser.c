@@ -56,6 +56,31 @@ jl_program_t *parse_branch(jl_token_list_t *tokens)
   return program;
 }
 
+jl_syntax_t *parse_line(jl_token_list_t *tokens)
+{
+  jl_syntax_t *syntax = NULL;
+  jl_syntax_t *prev_syntax = NULL;
+  while(jl_token_list_peek(tokens, 0)->type != TERMINATOR)
+  {
+    //printf("%i\n", jl_token_list_peek(tokens, 0)->type);
+    if(syntax == NULL)
+    {
+      syntax = parse_statement(tokens);
+      prev_syntax = syntax;
+      continue;
+    }
+    syntax = parse_statement(tokens);
+    if(syntax == NULL)
+    {
+      continue;
+    }
+    syntax->left = prev_syntax;
+    prev_syntax = syntax;
+  }
+  jl_token_list_advance(tokens);
+  return syntax;
+}
+
 jl_program_t *parse(jl_token_list_t *tokens)
 {
   jl_program_t *program = jl_new_program(); 

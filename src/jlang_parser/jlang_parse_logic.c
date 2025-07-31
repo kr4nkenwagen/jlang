@@ -57,4 +57,20 @@ jl_syntax_t *parse_while(jl_token_list_t *tokens)
   return syntax;
 }
 
-
+jl_syntax_t *parse_for(jl_token_list_t *tokens)
+{
+  jl_syntax_t *syntax = jl_syntax_new();
+  syntax->token = jl_token_list_peek(tokens, 0);
+  jl_token_t *left_paren = jl_token_list_advance(tokens);
+  if(left_paren->type != LEFT_PAREN)
+  {
+    err_unexpected_syntax(left_paren);
+  } 
+  jl_token_list_advance(tokens);
+  syntax->left = parse_line(tokens);
+  syntax->value = parse_line(tokens);
+  syntax->right = parse_line(tokens);
+  jl_token_list_advance(tokens);
+  syntax->branch = parse_branch(tokens);
+  return syntax; 
+}

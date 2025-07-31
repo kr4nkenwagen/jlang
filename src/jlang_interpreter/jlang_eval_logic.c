@@ -26,7 +26,25 @@ void eval_while(jl_syntax_t *syntax, vm_t *vm)
 
 void eval_for(jl_syntax_t *syntax, vm_t *vm)
 {
-
+  if(syntax == NULL)
+  {
+    return;
+  }
+  vm_push_frame(vm, stack_new());
+  eval_primary_expression(syntax->left, vm);
+  jl_object_t *condition = eval_primary_expression(syntax->value, vm);
+  if(condition->type != BOOL_OBJECT)
+  {
+    err_expected_boolean_condition(syntax->token);
+    return;
+  }
+  while(condition->data.v_bool == true)
+  {
+    interprete_branch(syntax, vm);
+    eval_primary_expression(syntax->right, vm);
+    condition = eval_primary_expression(syntax->value, vm);
+  }
+  vm_pop_frame(vm);
 }
 
 void eval_if(jl_syntax_t *syntax, vm_t *vm)
