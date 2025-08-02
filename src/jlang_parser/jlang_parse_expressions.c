@@ -45,7 +45,6 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
         return NULL;
       }
       syntax = parse_expression(tokens);
-      jl_token_list_advance(tokens);
       jl_token_t *token = jl_token_list_peek(tokens, 0);
       if(token == NULL || token->type != RIGHT_PAREN)
       {
@@ -53,6 +52,7 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
       }
       jl_token_list_advance(tokens);
       return syntax;
+    case RIGHT_BRACE:
     case SOFT_TERMINATOR:
     case TERMINATOR:
       free(syntax);

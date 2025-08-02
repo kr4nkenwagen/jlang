@@ -4,6 +4,7 @@
 #include "../jlang_error.h"
 #include "../vm.h"
 #include "../jlang_object/jlang_object.h" 
+#include "../stack.h"
 #include "../jlang_program.h"
 
 void eval_while(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
@@ -31,7 +32,7 @@ void eval_for(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
   {
     return;
   }
-  vm_push_frame(vm, stack_new());
+  vm_push_frame(vm, stack_new(), true);
   eval_primary_expression(syntax->left, vm, program);
   jl_object_t *condition = eval_primary_expression(syntax->value, vm, program);
   if(condition->type != BOOL_OBJECT)

@@ -14,10 +14,10 @@
 jl_program_t *parse_branch(jl_token_list_t *tokens)
 {
   jl_program_t *program = jl_new_program();
-  while(jl_token_list_peek(tokens, 0)->type == TERMINATOR)
+  if(jl_token_list_peek(tokens, 0)->type == TERMINATOR)
   {
     jl_token_list_advance(tokens);
-  } 
+  }
   if(jl_token_list_peek(tokens, 0)->type != LEFT_BRACE)
   {
     err_bracket_not_opened(jl_token_list_peek(tokens, 0));
@@ -33,7 +33,8 @@ jl_program_t *parse_branch(jl_token_list_t *tokens)
     }
     jl_syntax_t *syntax = NULL;
     jl_syntax_t *prev_syntax = NULL;
-    while(jl_token_list_peek(tokens, 0)->type != TERMINATOR)
+    while(jl_token_list_peek(tokens, 0)->type != TERMINATOR &&
+          jl_token_list_peek(tokens, 0)->type != RIGHT_BRACE)
     {
       if(syntax == NULL)
       {
@@ -77,7 +78,10 @@ jl_syntax_t *parse_line(jl_token_list_t *tokens)
     syntax->left = prev_syntax;
     prev_syntax = syntax;
   }
-  jl_token_list_advance(tokens);
+  while(jl_token_list_peek(tokens, 0)->type == TERMINATOR)
+  {
+    jl_token_list_advance(tokens);
+  }
   return syntax;
 }
 
@@ -88,7 +92,9 @@ jl_program_t *parse(jl_token_list_t *tokens)
   {
     jl_syntax_t *syntax = NULL;
     jl_syntax_t *prev_syntax = NULL;
-    while(jl_token_list_peek(tokens, 0)->type != TERMINATOR)
+    while(jl_token_list_peek(tokens, 0)->type != TERMINATOR && 
+          jl_token_list_peek(tokens, 0)->type != RIGHT_BRACE &&
+          jl_token_list_peek(tokens, 0)->type != LEFT_BRACE)
     {
       if(syntax == NULL)
       {

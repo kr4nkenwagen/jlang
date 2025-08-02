@@ -318,6 +318,7 @@ jl_token_list_t *scan(jl_source_code_t *src)
   jl_token_list_t *token_list = jl_token_list_new();
   while(src->is_at_end == 0)
   {
+    jl_token_t *tmp = token_list->list[token_list->count - 1];
     switch(jl_source_code_advance(src))
     {
       case '(':
@@ -330,7 +331,10 @@ jl_token_list_t *scan(jl_source_code_t *src)
         jl_token_list_add(token_list,  jl_token_new(src, LEFT_BRACE, "{"));
       break;
       case '}':
-        jl_token_list_add(token_list, jl_token_new(src, TERMINATOR, ";"));
+        if(tmp->type != TERMINATOR)
+        {
+          jl_token_list_add(token_list, jl_token_new(src, TERMINATOR, ";"));
+        }
         jl_token_list_add(token_list, jl_token_new(src, RIGHT_BRACE, "}"));
       break;
       case '[':
@@ -475,6 +479,12 @@ jl_token_list_t *scan(jl_source_code_t *src)
         jl_token_list_add(token_list,  jl_token_new(src, NUMBER, consume_number(src)));
       break;
       case '\n':
+        if(tmp != NULL && (tmp->type == LEFT_PAREN ||
+           tmp->type == TERMINATOR ||
+           tmp->type == LEFT_BRACE))
+        {
+          break;
+        }
       case ';':
         jl_token_list_add(token_list, jl_token_new(src, TERMINATOR, ";"));
       break;

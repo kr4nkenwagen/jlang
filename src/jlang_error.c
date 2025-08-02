@@ -19,7 +19,7 @@ void err_src_null()
 
 void err_expected_identifier_or_literal(jl_token_t *token)
 {
-  fprintf(stderr, "[ERROR:%i%i] Expected identifier or literal\n", token->line, token->column);
+  fprintf(stderr, "[ERROR:%i%i] Expected identifier or literal. Got '%s'\n", token->line, token->column, token->literal);
 }
 
 void err_bracket_not_closed(jl_token_t *token)

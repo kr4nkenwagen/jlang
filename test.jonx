@@ -2,9 +2,8 @@ print("Test script made to test basic functionality of jLang.\n");
 print("\t Jon Felix Jennemann\n");
 fn multiplyByCool(const num)
 {
-  print("cool factor: " .. num * 1337);
+  println("cool factor: " .. num * 1337);
 }
-
 var number = 0; 
 const multiplier = 2;
 if(number == 0)

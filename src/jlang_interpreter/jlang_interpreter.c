@@ -35,7 +35,7 @@ jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
 {
   bool is_function = syntax->token->type == FUNCTION;
   vm_push_frame(vm, stack_new(), !is_function);
-  if(syntax->args !=NULL)
+  if(syntax->args != NULL)
   {
     interprete(syntax->args, vm);
     jl_object_t *arg_vals = eval_array_declaration(syntax->value, vm, syntax->branch);
@@ -52,6 +52,9 @@ jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
   }
   interprete(syntax->branch, vm);
   vm_pop_frame(vm);
-  return ((jl_program_t *)syntax->branch)->ret_value;
+  if(is_function)
+  {
+    return ((jl_program_t *)syntax->branch)->ret_value;
+  }
 }
 

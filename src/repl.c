@@ -51,7 +51,7 @@ void repl()
 {
   printf("%s[%s] - %s\nrepl\n", APPLICATION_NAME, VERSION, AUTHOR);
   vm_t* vm = vm_new();
-  vm_push_frame(vm, stack_new());
+  vm_push_frame(vm, stack_new(), true);
   while(true)
   {
     putchar('>');

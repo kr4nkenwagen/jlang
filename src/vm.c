@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "stdio.h"
 #include "stack.h"
 
 stack_t *vm_curr_frame(vm_t *vm);
@@ -28,7 +29,7 @@ void copy_references(stack_t *target, stack_t *src)
   }
 }
 
-void vm_push_frame(vm_t *vm, stack_t *frame)
+void vm_push_frame(vm_t *vm, stack_t *frame, bool inherit_stack)
 {
   if(vm == NULL)
   {
@@ -42,7 +43,7 @@ void vm_push_frame(vm_t *vm, stack_t *frame)
     vm->frames = tmp;
     vm->size *= 2;
   }
-  if(vm->count > 0)
+  if(inherit_stack && vm->count > 0)
   {
     copy_references(frame, vm_curr_frame(vm)); 
     frame->parent_references = frame->count;
