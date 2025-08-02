@@ -14,7 +14,6 @@ void execute(char *file)
   jl_token_list_t *tokens = scan(src);
   jl_program_t *program = parse(tokens);
 //   debug(tokens, program);
-  count_tokens(tokens);
   vm_t* vm = vm_new();
   vm_push_frame(vm, stack_new(), false);
   interprete(program, vm);

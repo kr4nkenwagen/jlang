@@ -7,9 +7,7 @@ fn multiplyByCool(const num)
 var number = 0; 
 const multiplier = 2;
 if(number == 0)
-{
   number += 5;
-}
 while(number < 20)
 {
   number += 3;
