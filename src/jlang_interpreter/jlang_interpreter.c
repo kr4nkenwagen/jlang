@@ -31,14 +31,15 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
     jl_print_object(eval_primary_expression(program->statements[i], vm, program));
   }
 }
+
 jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
 {
-  bool is_function = syntax->token->type == FUNCTION;
-  vm_push_frame(vm, stack_new(), !is_function);
+  bool is_function = syntax->token->type == IDENTIFIER;
   if(syntax->args != NULL)
   {
-    interprete(syntax->args, vm);
     jl_object_t *arg_vals = eval_array_declaration(syntax->value, vm, syntax->branch);
+    vm_push_frame(vm, stack_new(), false);
+    interprete(syntax->args, vm);
     stack_t * curr_stack = vm_curr_frame(vm);
     if(curr_stack->count - curr_stack->parent_references != arg_vals->data.v_array->count)
     {
@@ -49,6 +50,10 @@ jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
       curr_stack->data[i]->data = arg_vals->data.v_array->elements[i - curr_stack->parent_references]->data;
       curr_stack->data[i]->type = arg_vals->data.v_array->elements[i - curr_stack->parent_references]->type;
     }
+  }
+  else 
+  {
+    vm_push_frame(vm, stack_new(), true);
   }
   interprete(syntax->branch, vm);
   vm_pop_frame(vm);
