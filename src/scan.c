@@ -502,7 +502,11 @@ jl_token_list_t *scan(jl_source_code_t *src)
         jl_token_t *token = consume_reserved_word(src);
         if(token == NULL)
         {
-          jl_token_list_add(token_list, consume_identifier(src));
+          jl_token_t *word = consume_identifier(src);
+          if(strlen(word->literal) > 0)
+          {
+            jl_token_list_add(token_list, word);
+          }
           break;
         }
         jl_token_list_add(token_list, token);
