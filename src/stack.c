@@ -9,7 +9,6 @@
   stack_t *obj = malloc(sizeof(stack_t));
   if(obj == NULL)
   {
-    printf("ddd@]\n");
     return NULL;
   }
   obj->capacity = 8;
@@ -18,7 +17,6 @@
   obj->data = calloc(sizeof(void *), obj->capacity);
   if(obj->data == NULL)
   {
-    printf("ddd]\n");
     free(obj);
     return NULL;
   }

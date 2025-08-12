@@ -93,8 +93,7 @@ jl_object_t *eval_identifier(jl_syntax_t *syntax, vm_t *vm, jl_program_t *progra
       return NULL;
     }
     ((jl_syntax_t *)obj->data.v_funct)->value = syntax->left;
-    
-    return eval_function_identifier(obj->data.v_funct, vm, program);
+    obj = eval_function_identifier(obj->data.v_funct, vm, program);
   }
   return obj;
 }

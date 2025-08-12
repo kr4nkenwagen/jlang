@@ -52,6 +52,7 @@ jl_object_t *jl_new_null();
 jl_object_t *jl_new_bool(bool value);
 jl_object_t *jl_new_vector(jl_object_t *x, jl_object_t *y, jl_object_t *z);
 jl_object_t *jl_new_funct(void *syntax);
+jl_object_t *jl_object_instantiate_copy(jl_object_t *src);
 
 void jl_object_free(jl_object_t *obj);
 

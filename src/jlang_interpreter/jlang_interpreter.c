@@ -15,21 +15,27 @@
 #include "../jlang_object/jlang_object_string.h"
 #include "../jlang_object/jlang_object_array.h"
 
-
 jl_object_t *interprete(jl_program_t *program, vm_t *vm)
 {
   if(program == NULL)
   {
     return NULL;
   }
+  jl_object_t *value;
   for(int i = 0; i < program->count; i++)
   {
     if(program->exit)
     {
-      return program->ret_value;
+      break;
     }
-    jl_print_object(eval_primary_expression(program->statements[i], vm, program));
+    value = eval_primary_expression(program->statements[i], vm, program);
+    jl_print_object(value);
   }
+  if(program->exit)
+  {
+    return program->ret_value;
+  }
+  return NULL;
 }
 
 jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
@@ -55,11 +61,8 @@ jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
   {
     vm_push_frame(vm, stack_new(), true);
   }
-  interprete(syntax->branch, vm);
+  jl_object_t *value = jl_object_instantiate_copy(interprete(syntax->branch, vm));
   vm_pop_frame(vm);
-  if(is_function)
-  {
-    return ((jl_program_t *)syntax->branch)->ret_value;
-  }
+  return value;
 }
 

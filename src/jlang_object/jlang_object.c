@@ -209,3 +209,18 @@ void jl_object_free(jl_object_t *obj)
   }
   free(obj);
 }
+
+jl_object_t *jl_object_instantiate_copy(jl_object_t *src)
+{
+  if(src == NULL)
+  {
+    return NULL;
+  }
+  jl_object_t *obj = malloc(sizeof(jl_object_t));
+  if(obj == NULL)
+  {
+    return NULL;
+  }
+  memcpy(obj, src, sizeof(jl_object_t));
+  return obj;
+}
