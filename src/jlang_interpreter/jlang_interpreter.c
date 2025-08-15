@@ -29,6 +29,11 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
     {
       break;
     } 
+    if(program->continueing)
+    {
+      program->pointer++;
+      continue;
+    }
     value = eval_primary_expression(program->statements[program->pointer++], vm, program);
     jl_print_object(value);
   }

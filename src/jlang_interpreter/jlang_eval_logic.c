@@ -69,12 +69,24 @@ void eval_if(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 
 void eval_break(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
-  program->breaking = true;
+  jl_program_t *curr_prog = program;
+  while(curr_prog->type != PROG_LOOP)
+  {
+    curr_prog->exit = true;
+    curr_prog = curr_prog->parent;
+  }
+  curr_prog->exit = true;
 }
 
 void eval_continue(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
-  program->continueing = true;
+  jl_program_t *curr_prog = program;
+  while(curr_prog->type != PROG_LOOP)
+  {
+    curr_prog->exit = true;
+    curr_prog = curr_prog->parent;
+  }
+  curr_prog->continueing = true;
 }
 
 void eval_return(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
