@@ -202,12 +202,18 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
   char character = jl_source_code_peek(src, 0);
   switch(character)
   {
-    case 'a':
-    case 'A':
+  case 'a':
+  case 'A':
     if(is_next_word_match(src, "and"))
     {
       return jl_token_new(src, AND, consume_word(src));
     }
+  case 'b':
+  case 'B':
+    if(is_next_word_match(src, "break"))
+    {
+        return jl_token_new(src, BREAK, consume_word(src));
+      }
   case 'c':
   case 'C':
     if(is_next_word_match(src, "class"))
@@ -217,7 +223,11 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     else if(is_next_word_match(src, "const"))
     {
         return jl_token_new(src, CONST, consume_word(src));
-      }
+    }
+    else if(is_next_word_match(src, "continue"))
+    {
+        return jl_token_new(src, CONTINUE, consume_word(src));
+    }
   case 'e':
   case 'E':
     if(is_next_word_match(src, "else"))

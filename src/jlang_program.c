@@ -3,7 +3,7 @@
 #include "jlang_program.h"
 #include "jlang_syntax/jlang_syntax.h"
 
-jl_program_t *jl_new_program()
+jl_program_t *jl_new_program(jl_program_t *parent)
 {
   jl_program_t *program = malloc(sizeof(jl_program_t));
   if(program == NULL)
@@ -12,9 +12,14 @@ jl_program_t *jl_new_program()
   }
   program->size = 8;
   program->count = 0;
+  program->pointer = 0;
   program->exit = false;
+  program->breaking = false;
+  program->continueing = false;
   program->statements = malloc(sizeof(jl_syntax_t) * program->size);
   program->ret_value = NULL;
+  program->type = PROG_SOURCE;  
+  program->parent = parent;
   return program;
 }
 

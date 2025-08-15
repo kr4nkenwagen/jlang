@@ -5,6 +5,7 @@
 #include "jlang_parse_function.h"
 #include "jlang_parse_expressions.h"
 #include "jlang_parse_logic.h"
+#include "../jlang_program.h"
 #include "../jlang_predefined_functions/jlang_print.h"
 #include "../jlang_token/jlang_token.h"
 #include "../jlang_token/jlang_token_list.h"
@@ -63,27 +64,31 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
   return NULL;
 }
 
-jl_syntax_t *parse_statement(jl_token_list_t *tokens)
+jl_syntax_t *parse_statement(jl_token_list_t *tokens, jl_program_t *parent)
 {
   switch(jl_token_list_peek(tokens, 0)->type)
   {
+    case CONTINUE:
+      return parse_continue(tokens);
+    case BREAK:
+      return parse_break(tokens); 
     case RETURN:
       return parse_return(tokens);
     case PRINT_LINE:
       return parse_function_print_line(tokens);
     case FOR:
-      return parse_for(tokens);
+      return parse_for(tokens, parent);
     case PRINT:
       return parse_function_print(tokens);
     case FUNCTION:
-      return parse_function(tokens);
+      return parse_function(tokens, parent);
     case WHILE:
-      return parse_while(tokens);
+      return parse_while(tokens, parent);
     case VAR:
     case CONST:
       return parse_variable_declarations(tokens);
     case IF:
-      return parse_if(tokens);
+      return parse_if(tokens, parent);
     default:
       return parse_expression(tokens);
   }

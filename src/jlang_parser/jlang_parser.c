@@ -11,9 +11,8 @@
 #include "../jlang_object/jlang_object.h"
 #include "../jlang_error.h"
 
-jl_program_t *parse_branch(jl_token_list_t *tokens)
+jl_program_t *parse_branch(jl_token_list_t *tokens, jl_program_t *parent)
 {
-  jl_program_t *program = jl_new_program();
   if(jl_token_list_peek(tokens, 0)->type == TERMINATOR)
   {
     jl_token_list_advance(tokens);
@@ -23,6 +22,7 @@ jl_program_t *parse_branch(jl_token_list_t *tokens)
     err_bracket_not_opened(jl_token_list_peek(tokens, 0));
     return NULL;
   }
+  jl_program_t *program = jl_new_program(parent);
   jl_token_list_advance(tokens);
   while(jl_token_list_peek(tokens, 0)->type != RIGHT_BRACE)
   {
@@ -38,11 +38,11 @@ jl_program_t *parse_branch(jl_token_list_t *tokens)
     {
       if(syntax == NULL)
       {
-        syntax = parse_statement(tokens);
+        syntax = parse_statement(tokens, program);
         prev_syntax = syntax;
         continue;
       }
-      syntax = parse_statement(tokens);
+      syntax = parse_statement(tokens, program);
       if(syntax == NULL)
       {
         continue;
@@ -57,7 +57,7 @@ jl_program_t *parse_branch(jl_token_list_t *tokens)
   return program;
 }
 
-jl_syntax_t *parse_line(jl_token_list_t *tokens)
+jl_syntax_t *parse_line(jl_token_list_t *tokens, jl_program_t *parent)
 {
   jl_syntax_t *syntax = NULL;
   jl_syntax_t *prev_syntax = NULL;
@@ -66,11 +66,11 @@ jl_syntax_t *parse_line(jl_token_list_t *tokens)
   {
     if(syntax == NULL)
     {
-      syntax = parse_statement(tokens);
+      syntax = parse_statement(tokens, parent);
       prev_syntax = syntax;
       continue;
     }
-    syntax = parse_statement(tokens);
+    syntax = parse_statement(tokens, parent);
     if(syntax == NULL)
     {
       continue;
@@ -85,9 +85,9 @@ jl_syntax_t *parse_line(jl_token_list_t *tokens)
   return syntax;
 }
 
-jl_program_t *parse(jl_token_list_t *tokens)
+jl_program_t *parse(jl_token_list_t *tokens, jl_program_t *parent)
 {
-  jl_program_t *program = jl_new_program(); 
+  jl_program_t *program = jl_new_program(parent); 
   while(jl_token_list_peek(tokens, 0)->type != END_OF_FILE)
   {
     jl_syntax_t *syntax = NULL;
@@ -98,11 +98,11 @@ jl_program_t *parse(jl_token_list_t *tokens)
     {
       if(syntax == NULL)
       {
-        syntax = parse_statement(tokens);
+        syntax = parse_statement(tokens, parent);
         prev_syntax = syntax;
         continue;
       }
-      syntax = parse_statement(tokens);
+      syntax = parse_statement(tokens, parent);
       if(syntax == NULL)
       {
         continue;

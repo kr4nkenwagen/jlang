@@ -228,7 +228,13 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t
     return NULL;
   }
   switch(syntax->token->type)
-  {
+  {   
+    case CONTINUE:
+      eval_continue(syntax, vm, program);
+      return NULL;
+    case BREAK:
+      eval_break(syntax, vm, program);
+      return NULL;
     case RETURN:
       eval_return(syntax, vm, program);
       return NULL;

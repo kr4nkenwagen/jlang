@@ -4,9 +4,9 @@
 #include "../jlang_token/jlang_token_list.h"
 #include "../jlang_error.h"
 
-jl_program_t *parse_function_args(jl_token_list_t *tokens)
+jl_program_t *parse_function_args(jl_token_list_t *tokens, jl_program_t *parent)
 {
-  jl_program_t *args = jl_new_program();
+  jl_program_t *args = jl_new_program(parent);
   if(jl_token_list_peek(tokens, 0)->type != LEFT_PAREN)
   {
     err_unexpected_syntax(jl_token_list_peek(tokens, 0));
@@ -59,7 +59,7 @@ jl_program_t *parse_function_args(jl_token_list_t *tokens)
 }
 
 
-jl_syntax_t *parse_function(jl_token_list_t *tokens)
+jl_syntax_t *parse_function(jl_token_list_t *tokens, jl_program_t *parent)
 {
   jl_syntax_t *declaration = jl_syntax_new();
   declaration->token = jl_token_list_peek(tokens, 0);
@@ -73,20 +73,22 @@ jl_syntax_t *parse_function(jl_token_list_t *tokens)
   }
   jl_token_list_advance(tokens);
   
-  syntax->args = parse_function_args(tokens);
+  syntax->args = parse_function_args(tokens, parent);
   if(jl_token_list_peek(tokens, 0)->type == TERMINATOR)
   {
     jl_token_list_advance(tokens);
   }
   if(jl_token_list_peek(tokens, 0)->type == LEFT_BRACE)
   {
-    syntax->branch = parse_branch(tokens); 
+    syntax->branch = parse_branch(tokens, parent); 
+    ((jl_program_t *)syntax->branch)->type = PROG_FUNCTION;
   }
   else 
   {
-    jl_program_t *program = jl_new_program();
+    jl_program_t *program = jl_new_program(parent);
+    program->type = PROG_FUNCTION;
     syntax->branch = program;
-    jl_program_add(program, parse_line(tokens));
+    jl_program_add(program, parse_line(tokens, parent));
   }
   return declaration;
 }

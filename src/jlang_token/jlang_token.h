@@ -56,7 +56,9 @@ typedef enum jl_token_type{
   STAR_EQUAL,
   SLASH_EQUAL,
   SOFT_TERMINATOR,
-  PRINT_LINE
+  PRINT_LINE,
+  CONTINUE,
+  BREAK
 }jl_token_type_t;
 
 typedef struct jl_token {

@@ -21,14 +21,15 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
   {
     return NULL;
   }
+  program->pointer = 0;
   jl_object_t *value;
-  for(int i = 0; i < program->count; i++)
+  while(program->pointer < program->count)
   {
     if(program->exit)
     {
       break;
-    }
-    value = eval_primary_expression(program->statements[i], vm, program);
+    } 
+    value = eval_primary_expression(program->statements[program->pointer++], vm, program);
     jl_print_object(value);
   }
   if(program->exit)
@@ -40,7 +41,6 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
 
 jl_object_t *interprete_branch(jl_syntax_t *syntax, vm_t *vm)
 {
-  bool is_function = syntax->token->type == IDENTIFIER;
   if(syntax->args != NULL)
   {
     jl_object_t *arg_vals = eval_array_declaration(syntax->value, vm, syntax->branch);

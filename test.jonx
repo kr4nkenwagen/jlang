@@ -5,7 +5,13 @@ fn multiplyByCool(const num)
   var cool_num = 1337
   cool_num = cool_num * num
   println("fn was ran");
-  return cool_num;
+  if(true)
+  {
+    if(true)
+    {
+      return cool_num;
+    }
+  }
   println("I should not run");
 }
 var number = 0; 
