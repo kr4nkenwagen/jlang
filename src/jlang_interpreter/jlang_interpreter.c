@@ -32,6 +32,7 @@ jl_object_t *interprete(jl_program_t *program, vm_t *vm)
     if(program->continueing)
     {
       program->pointer++;
+      program->continueing = false;
       continue;
     }
     value = eval_primary_expression(program->statements[program->pointer++], vm, program);
