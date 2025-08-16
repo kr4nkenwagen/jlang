@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "../jlang_object/jlang_object_string.h"
 #include "../jlang_object/jlang_object.h"
 
 void print_out(char *str)
@@ -33,6 +34,9 @@ void jl_print(jl_object_t *obj)
   {
     case STRING_OBJECT:
       print_out(obj->data.v_string);
+    break;
+    case INT_OBJECT:
+      print_out(int_to_number(obj->data.v_int));
     break;
   }
 }
