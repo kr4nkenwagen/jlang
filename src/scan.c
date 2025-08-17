@@ -262,6 +262,12 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     {
       return jl_token_new(src, IF, consume_word(src));
     }
+    else if(is_next_word_match(src, "import"))
+    {
+      consume_word(src);
+      char *path = consume_string(src);
+      jl_source_code_import_file(src, path);
+    }
   case 'n':
   case 'N':
     if(is_next_word_match(src, "null"))

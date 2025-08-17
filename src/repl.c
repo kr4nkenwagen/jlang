@@ -63,7 +63,7 @@ void repl()
     jl_source_code_t *src = jl_source_code_from_repl(input);
     jl_token_list_t *tokens = scan(src);
     jl_program_t *program = parse(tokens, NULL);
-   // debug(tokens, program);
+    debug(tokens, program);
     interprete(program, vm);
   }
 }

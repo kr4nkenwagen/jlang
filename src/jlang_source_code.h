@@ -14,3 +14,4 @@ jl_source_code_t *jl_source_code_from_file(char *src);
 jl_source_code_t *jl_source_code_from_repl(char *line);
 char jl_source_code_advance(jl_source_code_t *src);
 char jl_source_code_peek(jl_source_code_t *src, int distance);
+void jl_source_code_import_file(jl_source_code_t *target, char *src);

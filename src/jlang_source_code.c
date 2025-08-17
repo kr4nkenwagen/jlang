@@ -47,6 +47,19 @@ jl_source_code_t *jl_source_code_from_file(char *src)
   return src_code;
 }
 
+void jl_source_code_import_file(jl_source_code_t *target, char *src)
+{
+  jl_source_code_t *obj = jl_source_code_from_file(src);
+  if(realloc(target->src, target->size + obj->size))
+  {
+    return;
+  }
+  memcpy(target->src + target->size, target->src + target->pointer, sizeof(char) * (target->size - target->pointer));
+  memcpy(obj->src, target->src + target->pointer, obj->size);
+  target->size += obj->size;
+  free(obj);
+}
+
 jl_source_code_t *jl_source_code_from_repl(char *line)
 {
   if(line == NULL)
