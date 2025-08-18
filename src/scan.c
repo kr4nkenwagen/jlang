@@ -265,8 +265,14 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     else if(is_next_word_match(src, "import"))
     {
       consume_word(src);
+      jl_source_code_advance(src);
+      jl_source_code_advance(src);
       char *path = consume_string(src);
+      jl_source_code_advance(src);
+      printf("%s\n", path);
       jl_source_code_import_file(src, path);
+      printf("%s\n", src->src);
+      return NULL; 
     }
   case 'n':
   case 'N':

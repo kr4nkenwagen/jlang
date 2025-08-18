@@ -1,5 +1,6 @@
 print("Test script made to test basic functionality of jLang.\n");
 print("\t Jon Felix Jennemann\n");
+import "import-file.jonx"
 fn multiplyByCool(const num)
 {
   var cool_num = 1337
