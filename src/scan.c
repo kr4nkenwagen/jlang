@@ -243,6 +243,10 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
       }
       return jl_token_new(src, ELSE, consume_word(src));
     }
+    else if(is_next_word_match(src, "err"))
+    {
+      return jl_token_new(src, ERROR, consume_word(src));
+    }
   case 'f':
   case 'F':
     if(is_next_word_match(src, "for"))
@@ -284,6 +288,10 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     if(is_next_word_match(src, "or"))
     {
       return jl_token_new(src, OR, consume_word(src));
+    }
+    else if(is_next_word_match(src, "out"))
+    {
+      return jl_token_new(src, OUT, consume_word(src));
     }
   case 'p':
   case 'P':

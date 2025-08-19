@@ -7,3 +7,5 @@ jl_syntax_t *parse_for(jl_token_list_t *tokens, jl_program_t *parent);
 jl_syntax_t *parse_return(jl_token_list_t *tokens);
 jl_syntax_t *parse_break(jl_token_list_t *tokens);
 jl_syntax_t *parse_continue(jl_token_list_t *tokens);
+jl_syntax_t *parse_out(jl_token_list_t *tokens);
+jl_syntax_t *parse_error(jl_token_list_t *tokens);

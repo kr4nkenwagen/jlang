@@ -5,7 +5,7 @@ fn multiplyByCool(const num)
 {
   var cool_num = 1337
   cool_num = cool_num * num
-  println("fn was ran");
+  out "fn was ran\n";
   if(true)
   {
     if(true)
@@ -13,7 +13,7 @@ fn multiplyByCool(const num)
       return cool_num;
     }
   }
-  println("I should not run");
+  err "I should not run\n";
 }
 var number = 0; 
 const multiplier = 2;
@@ -32,5 +32,5 @@ for(var i = 0; i < 10; i+=1;)
 number = number * multiplier;
 
 const result = multiplyByCool(number);
-println("Cool factor: " .. result);
-println("End of script");
+out "Cool factor: " .. result;
+out "\nEnd of script\n";

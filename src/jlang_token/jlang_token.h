@@ -59,7 +59,9 @@ typedef enum jl_token_type{
   PRINT_LINE,
   CONTINUE,
   BREAK,
-  IMPORT
+  IMPORT,
+  OUT,
+  ERROR
 }jl_token_type_t;
 
 typedef struct jl_token {

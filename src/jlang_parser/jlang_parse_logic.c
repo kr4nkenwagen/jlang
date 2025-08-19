@@ -104,3 +104,21 @@ jl_syntax_t *parse_break(jl_token_list_t *tokens)
   jl_token_list_advance(tokens);
   return syntax;
 }
+
+jl_syntax_t *parse_error(jl_token_list_t *tokens)
+{
+  jl_syntax_t *syntax = jl_syntax_new();
+  syntax->token = jl_token_list_peek(tokens, 0);
+  jl_token_list_advance(tokens);
+  syntax->value = parse_expression(tokens);
+  return syntax;
+}
+
+jl_syntax_t *parse_out(jl_token_list_t *tokens)
+{
+  jl_syntax_t *syntax = jl_syntax_new();
+  syntax->token = jl_token_list_peek(tokens, 0);
+  jl_token_list_advance(tokens);
+  syntax->value = parse_expression(tokens);
+  return syntax;
+}

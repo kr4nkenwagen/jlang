@@ -6,6 +6,7 @@
 #include "../jlang_object/jlang_object.h" 
 #include "../stack.h"
 #include "../jlang_program.h"
+#include "../jlang_predefined_functions/jlang_print.h"
 
 void eval_while(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
@@ -99,4 +100,14 @@ void eval_return(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
   }
   curr_prog->exit = true;
   curr_prog->ret_value = eval_primary_expression(syntax->value, vm, program);
+}
+
+void eval_out(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
+{
+  jl_print(eval_primary_expression(syntax->value, vm, program));
+}
+
+void eval_error(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
+{
+  jl_print(eval_primary_expression(syntax->value, vm, program));
 }

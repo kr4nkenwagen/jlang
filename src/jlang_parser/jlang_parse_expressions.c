@@ -68,6 +68,10 @@ jl_syntax_t *parse_statement(jl_token_list_t *tokens, jl_program_t *parent)
 {
   switch(jl_token_list_peek(tokens, 0)->type)
   {
+    case OUT:
+      return parse_out(tokens);
+    case ERROR:
+      return parse_error(tokens);
     case CONTINUE:
       return parse_continue(tokens);
     case BREAK:
