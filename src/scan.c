@@ -191,6 +191,7 @@ jl_token_t *consume_identifier(jl_source_code_t *src)
 {
   if(isalpha(jl_source_code_peek(src, -1)))
   {
+    printf("dddw;~%i\n", jl_source_code_peek(src,0));
     return NULL;
   }
   jl_token_t *token = jl_token_new(src, IDENTIFIER, consume_word(src));
@@ -269,10 +270,8 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
       jl_source_code_advance(src);
       char *path = consume_string(src);
       jl_source_code_advance(src);
-      printf("%s\n", path);
       jl_source_code_import_file(src, path);
-      printf("%s\n", src->src);
-      return NULL; 
+      return jl_token_new(src, TERMINATOR, ""); 
     }
   case 'n':
   case 'N':

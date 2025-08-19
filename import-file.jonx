@@ -1,3 +1,4 @@
+println("I am start of imported file");
 println("I am imported");
 
 println("I am end of imported file");
