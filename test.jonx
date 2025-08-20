@@ -1,36 +1,36 @@
-print("Test script made to test basic functionality of jLang.\n");
+print("Test script made to test basic functionality of jLang.\n")
 print("\t Jon Felix Jennemann\n");
 import "import-file.jonx"
 fn multiplyByCool(const num)
 {
   var cool_num = 1337
   cool_num = cool_num * num
-  out "fn was ran\n";
+  out "fn was ran\n"
   if(true)
   {
     if(true)
     {
-      return cool_num;
+      return cool_num
     }
   }
-  err "I should not run\n";
+  err "I should not run"
 }
-var number = 0; 
-const multiplier = 2;
+var number = 0
+const multiplier = 2
 if(number == 0)
 {
-  number += 5;
+  number += 5
 }
 while(number < 20)
 {
-  number += 3;
+  number += 3
 }
-for(var i = 0; i < 10; i+=1;)
+for(var i = 0; i < 10; i+=1)
 {
-  number += i;
+  number += i
 }
-number = number * multiplier;
+number = number * multiplier
 
-const result = multiplyByCool(number);
-out "Cool factor: " .. result;
-out "\nEnd of script\n";
+const result = multiplyByCool(number)
+out "Cool factor: " .. result .. "\n"
+out "End of script\n"

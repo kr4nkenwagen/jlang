@@ -191,7 +191,6 @@ jl_token_t *consume_identifier(jl_source_code_t *src)
 {
   if(isalpha(jl_source_code_peek(src, -1)))
   {
-    printf("dddw;~%i\n", jl_source_code_peek(src,0));
     return NULL;
   }
   jl_token_t *token = jl_token_new(src, IDENTIFIER, consume_word(src));

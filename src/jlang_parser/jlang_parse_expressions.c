@@ -46,10 +46,10 @@ jl_syntax_t *parse_primary_expression(jl_token_list_t *tokens)
         return NULL;
       }
       syntax = parse_expression(tokens);
-      jl_token_t *token = jl_token_list_peek(tokens, 0);
-      if(token == NULL || token->type != RIGHT_PAREN)
+      jl_token_t *next_token = jl_token_list_peek(tokens, 0);
+      if(next_token == NULL || next_token->type != RIGHT_PAREN)
       {
-        err_unexpected_syntax(token);
+        err_unexpected_syntax(next_token);
       }
       jl_token_list_advance(tokens);
       return syntax;
@@ -101,18 +101,18 @@ jl_syntax_t *parse_string_operations(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_primary_expression(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && (
+  while(token != NULL && (
      token->type == COLON || 
      token->type == COLON_HAT 
   ))
   {
-    jl_token_list_advance(tokens);
     jl_syntax_t *op = jl_syntax_new();
     if(op == NULL)
     {
       return NULL;
     }
     op->token = token;
+    token = jl_token_list_advance(tokens);
     op->left = left;
     op->right = parse_primary_expression(tokens);
     left = op;
@@ -122,34 +122,31 @@ jl_syntax_t *parse_string_operations(jl_token_list_t * tokens)
 
 jl_syntax_t *parse_unary(jl_token_list_t * tokens)
 {
-  jl_syntax_t *left = parse_string_operations(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
   if(token != NULL && token->type == BANG)
   {
-    jl_token_list_advance(tokens);
     jl_syntax_t *op = jl_syntax_new();
     if(op == NULL)
     {
       return NULL;
     }
     op->token = token;
-    op->left = left;
-    op->right = parse_string_operations(tokens);
-    left = op;
+    jl_token_list_advance(tokens);
+    op->right = parse_unary(tokens);
+    return op;
   }
-  return left; 
+  return parse_string_operations(tokens);
 }
 
 jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
 {
   jl_syntax_t *left = parse_unary(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && (
+  while(token != NULL && (
         token->type == STAR || 
         token->type == SLASH || 
         token->type == MODULUS))
   {
-    jl_token_list_advance(tokens);
     jl_syntax_t *op = jl_syntax_new(); 
     if(op == NULL)
     {
@@ -157,6 +154,7 @@ jl_syntax_t *parse_multiplicitive(jl_token_list_t *tokens)
     }
     op->token = token;
     op->left = left;
+    token = jl_token_list_advance(tokens);
     op->right = parse_unary(tokens);
     left = op;
   }
@@ -167,13 +165,12 @@ jl_syntax_t *parse_additive(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_multiplicitive(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && (
+  while(token != NULL && (
         token->type == PLUS || 
         token->type == MINUS ||
         token->type == DOT_DOT
   ))
   {
-    jl_token_list_advance(tokens);
     jl_syntax_t *op = jl_syntax_new();
     if(op == NULL)
     {
@@ -181,8 +178,10 @@ jl_syntax_t *parse_additive(jl_token_list_t * tokens)
     }
     op->token = token;
     op->left = left;
+    jl_token_list_advance(tokens);
     op->right = parse_multiplicitive(tokens);
     left = op;
+    token = jl_token_list_peek(tokens, 0);
   }
   return left; 
 }
@@ -191,15 +190,14 @@ jl_syntax_t *parse_comparision(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_additive(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && (
+  while(token != NULL && (
         token->type == GREATER_EQUAL || 
         token->type == LESS_EQUAL || 
         token->type == GREATER || 
         token->type == LESS))
   {
     jl_syntax_t *op = jl_syntax_new();
-    op->token = jl_token_list_advance(tokens);
-    if(op->token == NULL)
+    if(op == NULL)
     {
       free(op);
       err_end_of_tokens(token);
@@ -207,8 +205,10 @@ jl_syntax_t *parse_comparision(jl_token_list_t * tokens)
     }
     op->token = token;
     op->left = left;
+    jl_token_list_advance(tokens);
     op->right = parse_additive(tokens);
     left = op;
+    token = jl_token_list_peek(tokens, 0);
   }
   return left; 
 }
@@ -217,13 +217,12 @@ jl_syntax_t *parse_equality(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_comparision(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && (  
+  while(token != NULL && (  
         token->type == EQUAL_EQUAL || 
         token->type == BANG_EQUAL))
   {
     jl_syntax_t *op = jl_syntax_new();
-    op->token = jl_token_list_advance(tokens);
-    if(op->token == NULL)
+    if(op == NULL)
     {
       free(op);
       err_end_of_tokens(token);
@@ -231,8 +230,10 @@ jl_syntax_t *parse_equality(jl_token_list_t * tokens)
     }
     op->token = token;
     op->left = left;
+    jl_token_list_advance(tokens);
     op->right = parse_comparision(tokens);
     left = op;
+    token = jl_token_list_peek(tokens, 0);
   }
   return left; 
 }
@@ -241,7 +242,7 @@ jl_syntax_t *parse_assignment(jl_token_list_t * tokens)
 {
   jl_syntax_t *left = parse_equality(tokens);
   jl_token_t *token = jl_token_list_peek(tokens, 0);
-  if(token != NULL && (
+  while(token != NULL && (
     token->type == EQUAL ||
     token->type == PLUS_EQUAL ||
     token->type == MINUS_EQUAL ||
@@ -250,8 +251,7 @@ jl_syntax_t *parse_assignment(jl_token_list_t * tokens)
   ))
   {
     jl_syntax_t *op = jl_syntax_new();
-    op->token = jl_token_list_advance(tokens);
-    if(op->token == NULL)
+    if(op == NULL)
     {
       free(op);
       err_end_of_tokens(token);
@@ -259,8 +259,10 @@ jl_syntax_t *parse_assignment(jl_token_list_t * tokens)
     }
     op->token = token;
     op->left = left;
+    jl_token_list_advance(tokens);
     op->right = parse_equality(tokens);
     left = op;
+    token = jl_token_list_peek(tokens, 0);
   }
   return left; 
 }
@@ -269,5 +271,3 @@ jl_syntax_t *parse_expression(jl_token_list_t *tokens)
 {
   return parse_assignment(tokens);
 }
-
-

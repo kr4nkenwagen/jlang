@@ -10,6 +10,7 @@
 #include "../jlang_syntax/jlang_syntax.h"
 #include "../jlang_object/jlang_object.h"
 #include "../jlang_error.h"
+#include "../debug.h"
 
 jl_syntax_t  *parse_if(jl_token_list_t *tokens, jl_program_t *parent)
 {
@@ -56,6 +57,7 @@ jl_syntax_t *parse_while(jl_token_list_t *tokens, jl_program_t *parent)
   syntax->token = jl_token_list_peek(tokens, 0);
   jl_token_list_advance(tokens);
   syntax->value = parse_expression(tokens);
+  jl_syntax_pretty_print(syntax->value, 0);
   syntax->branch = parse_branch(tokens, parent);
   ((jl_program_t *)syntax->branch)->type = PROG_LOOP;
   return syntax;
