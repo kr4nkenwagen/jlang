@@ -96,3 +96,72 @@ void print_array_content(jl_object_t *arr)
     jl_print_object(arr->data.v_array->elements[i]);
   }
 }
+
+const char *jl_token_type_to_string(int type) 
+{
+  switch(type) 
+  {
+    case IDENTIFIER: return "IDENTIFIER";
+    case NUMBER: return "NUMBER";
+    case STRING_WRAPPER: return "STRING";
+    case TRUE: return "TRUE";
+    case FALSE: return "FALSE";
+    case NIL: return "NIL";
+    case PLUS: return "PLUS (+)";
+    case MINUS: return "MINUS (-)";
+    case STAR: return "STAR (*)";
+    case SLASH: return "SLASH (/)";
+    case MODULUS: return "MODULUS (%)";
+    case DOT_DOT: return "STRING_ADD (..)";
+    case EQUAL_EQUAL: return "EQUAL_EQUAL (==)";
+    case BANG_EQUAL: return "NOT_EQUAL (!=)";
+    case GREATER: return "GREATER (>)";
+    case GREATER_EQUAL: return "GREATER_EQUAL (>=)";
+    case LESS: return "LESS (<)";
+    case LESS_EQUAL: return "LESS_EQUAL (<=)";
+    case EQUAL: return "ASSIGN (=)";
+    case PLUS_EQUAL: return "PLUS_ASSIGN (+=)";
+    case MINUS_EQUAL: return "MINUS_ASSIGN (-=)";
+    case STAR_EQUAL: return "STAR_ASSIGN (*=)";
+    case SLASH_EQUAL: return "SLASH_ASSIGN (/=)";
+    case BANG: return "BANG (!)";
+    case COLON: return "COLON (:)";
+    case COLON_HAT: return "COLON_HAT (:^)";
+    case LEFT_PAREN: return "LEFT_PAREN";
+    case RIGHT_PAREN: return "RIGHT_PAREN";
+    default: return "OTHER";
+  }
+}
+
+void jl_syntax_pretty_print(jl_syntax_t *syntax, int indent) {
+  if (syntax == NULL) 
+  {
+    return;
+  }
+  for (int i = 0; i < indent; i++) 
+  {
+    printf("  ");
+  }
+  if (syntax->token) 
+  {
+    char *type_name = jl_token_type_to_string(syntax->token->type);
+    if (syntax->token->literal) 
+    {
+      printf("%s: '%s'\n", type_name, syntax->token->literal);
+    } 
+    else 
+    {
+      printf("%s\n", type_name);  
+    }
+  } 
+  else 
+  {
+    printf("UNKNOWN syntax\n");
+  }
+
+  if (syntax->left || node->right) 
+  {
+    jl_syntax_pretty_print(syntax->left, indent + 1);
+    jl_syntax_pretty_print(syntax->right, indent + 1);
+  }
+}

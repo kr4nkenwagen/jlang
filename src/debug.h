@@ -6,3 +6,4 @@ int count_syntax(jl_syntax_t *syntax, int num);
 void count_tokens(jl_token_list_t *tokens);
 void jl_print_object(jl_object_t *target);
 void print_array_content(jl_object_t *arr);
+void jl_syntax_pretty_print(jl_syntax_t *syntax, int indent);
