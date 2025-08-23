@@ -95,7 +95,7 @@ jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *
     return NULL;
   }
   jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm, program);
-  if(right_hand_side != NULL || right_hand_side->type == BOOL_OBJECT)
+  if(right_hand_side != NULL && right_hand_side->type == BOOL_OBJECT)
   {
     return jl_new_bool(!right_hand_side->data.v_bool);
   }

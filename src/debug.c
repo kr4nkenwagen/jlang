@@ -144,7 +144,7 @@ void jl_syntax_pretty_print(jl_syntax_t *syntax, int indent) {
   }
   if (syntax->token) 
   {
-    char *type_name = jl_token_type_to_string(syntax->token->type);
+    const char *type_name = jl_token_type_to_string(syntax->token->type);
     if (syntax->token->literal) 
     {
       printf("%s: '%s'\n", type_name, syntax->token->literal);
@@ -159,7 +159,7 @@ void jl_syntax_pretty_print(jl_syntax_t *syntax, int indent) {
     printf("UNKNOWN syntax\n");
   }
 
-  if (syntax->left || node->right) 
+  if (syntax->left || syntax->right) 
   {
     jl_syntax_pretty_print(syntax->left, indent + 1);
     jl_syntax_pretty_print(syntax->right, indent + 1);
