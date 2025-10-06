@@ -101,6 +101,7 @@ int is_end_of_word(char c)
     case '<':
     case '>':
     case '.':
+    case ',':
       return 1;
   }
   return 0;
@@ -311,6 +312,10 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     {
       return jl_token_new(src, RETURN, consume_word(src));
     }
+    else if(is_next_word_match(src, "remove"))
+    {
+      return jl_token_new(src, REMOVE, consume_word(src));
+    }
   case 's':
   case 'S':
     if(is_next_word_match(src, "super"))
@@ -339,6 +344,21 @@ jl_token_t *consume_reserved_word(jl_source_code_t *src)
     {
       return jl_token_new(src, WHILE, consume_word(src));
     }
+    case '&':
+      if(jl_source_code_peek(src, 1) == '&')
+      {
+        jl_source_code_advance(src);
+        jl_source_code_advance(src);
+        return jl_token_new(src, AND, "&&");
+      }
+    case '|':
+      if(jl_source_code_peek(src, 1) == '|')
+      {
+        jl_source_code_advance(src);
+        jl_source_code_advance(src);
+        return jl_token_new(src, AND, "||");
+      }
+
   }
   return NULL;
 }

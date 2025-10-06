@@ -61,7 +61,8 @@ typedef enum jl_token_type{
   BREAK,
   IMPORT,
   OUT,
-  ERROR
+  ERROR,
+  REMOVE
 }jl_token_type_t;
 
 typedef struct jl_token {

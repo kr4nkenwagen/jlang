@@ -79,7 +79,7 @@ void stack_remove_nulls(stack_t *stack)
   stack->count = new_count;
 }
 
-jl_object_t *jl_stack_get(stack_t* stack, char *name)
+jl_object_t *jl_stack_get(stack_t *stack, char *name)
 {
   if(stack == NULL)
   {
@@ -93,4 +93,21 @@ jl_object_t *jl_stack_get(stack_t* stack, char *name)
     }
   }
   return NULL;
+}
+
+void jl_stack_remove_object(stack_t *stack, char *name)
+{
+  if(stack == NULL)
+  {
+    return;
+  }
+  for(int i = 0; i < stack->count; i++)
+  {
+    if(strcmp(stack->data[i]->name, name) == 0)
+    {
+      free(stack->data[i]);
+      stack->data[i] = NULL;
+    }
+  }
+  stack_remove_nulls(stack);
 }

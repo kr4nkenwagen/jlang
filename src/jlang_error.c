@@ -54,6 +54,7 @@ void err_unexpected_eof(jl_token_t *token)
 
 void err_illegal_operation(jl_token_t *token)
 {
+  fprintf(stderr, "%s\n", token->literal);
   fprintf(stderr, "[ERROR:%i:%i] Illegal operation\n", token->line, token->column);
 }
 

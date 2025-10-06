@@ -5,6 +5,7 @@
 #include "jlang_token/jlang_token_list.h"
 #include "jlang_program.h"
 #include "jlang_syntax/jlang_syntax.h"
+#include "stack.h"
 
 
 int count_syntax(jl_syntax_t *syntax, int num)
@@ -144,7 +145,7 @@ void jl_syntax_pretty_print(jl_syntax_t *syntax, int indent) {
   }
   if (syntax->token) 
   {
-    const char *type_name = jl_token_type_to_string(syntax->token->type);
+   const char *type_name = jl_token_type_to_string(syntax->token->type);
     if (syntax->token->literal) 
     {
       printf("%s: '%s'\n", type_name, syntax->token->literal);
@@ -165,3 +166,13 @@ void jl_syntax_pretty_print(jl_syntax_t *syntax, int indent) {
     jl_syntax_pretty_print(syntax->right, indent + 1);
   }
 }
+
+void jl_print_stack(stack_t *stack)
+{
+  printf("=stack=====\n");
+  for(int i = 0; i < stack->count; i++)
+  {
+    printf(" %s\n", stack->data[i]->name);
+  }
+}
+

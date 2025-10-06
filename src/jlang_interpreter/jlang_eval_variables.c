@@ -34,6 +34,24 @@ void eval_variable_declarations(jl_syntax_t *syntax, vm_t *vm, jl_program_t *pro
   }
 }
 
+void eval_variable_remove(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
+{
+  if(syntax == NULL)
+  {
+    return;
+  }
+  bool is_const = syntax->token->type == CONST;
+  syntax = syntax->left;
+  while(syntax != NULL && syntax->token->type == IDENTIFIER)
+  {
+    if(jl_stack_get(vm_curr_frame(vm), syntax->token->literal) != NULL)
+    {
+      jl_stack_remove_object(vm_curr_frame(vm), syntax->token->literal);
+    }
+    syntax = syntax->left; 
+  }
+}
+
 jl_object_t *eval_array_declaration(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)

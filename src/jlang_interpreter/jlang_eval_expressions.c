@@ -88,6 +88,29 @@ jl_object_t *eval_string_operation_expression(jl_syntax_t *syntax, vm_t *vm, jl_
   }
 }
 
+jl_object_t *eval_and_or(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
+{
+  if(syntax == NULL)
+  {
+    return NULL;
+  }
+  jl_object_t *left_hand_side = eval_primary_expression(syntax->left, vm, program);
+  jl_object_t *right_hand_side = eval_primary_expression(syntax->right, vm, program);
+  if(left_hand_side->type != BOOL_OBJECT || right_hand_side->type != BOOL_OBJECT)
+  {
+    return NULL;
+  }
+  if(syntax->token->type == AND)
+  {
+    return jl_new_bool(left_hand_side->data.v_bool && right_hand_side->data.v_bool);
+  }
+  else if(syntax->token->type == OR)
+  {
+    return jl_new_bool(left_hand_side->data.v_bool || right_hand_side->data.v_bool);
+  }
+  return NULL;
+}
+
 jl_object_t *eval_unary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t *program)
 {
   if(syntax == NULL)
@@ -229,6 +252,9 @@ jl_object_t *eval_primary_expression(jl_syntax_t *syntax, vm_t *vm, jl_program_t
   }
   switch(syntax->token->type)
   {   
+    case REMOVE:
+      eval_variable_remove(syntax, vm, program);
+      return NULL;
     case ERROR:
       eval_error(syntax, vm, program);
       return NULL;

@@ -51,6 +51,33 @@ jl_syntax_t *parse_variable_declarations(jl_token_list_t *tokens)
   return declaration;
 }
 
+jl_syntax_t *parse_variable_remove(jl_token_list_t *tokens)
+{
+  jl_syntax_t *declaration = jl_syntax_new();
+  declaration->token = jl_token_list_peek(tokens, 0);
+  jl_token_t *token = jl_token_list_advance(tokens);
+  jl_syntax_t *prev_syntax = declaration;
+  do
+  {
+    if(token->type == COMMA)
+    {
+      token = jl_token_list_advance(tokens);
+    }
+    if(token->type != IDENTIFIER)
+    {
+      err_unexpected_syntax(token);
+      return NULL;
+    }
+    jl_syntax_t *syntax = jl_syntax_new();
+    syntax->token = token;
+    token = jl_token_list_peek(tokens, 0);
+    prev_syntax->left = syntax;
+    prev_syntax = syntax;
+    token = jl_token_list_advance(tokens);
+  } while(token->type == COMMA);
+   return declaration;
+}
+
 jl_syntax_t *parse_array_declaration(jl_token_list_t *tokens)
 {
   jl_syntax_t *declaration = jl_syntax_new();

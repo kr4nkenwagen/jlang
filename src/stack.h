@@ -14,3 +14,4 @@ jl_object_t *stack_pop(stack_t *stack);
 void stack_free(stack_t *stack); 
 void stack_remove_nulls(stack_t *stack);
 jl_object_t *jl_stack_get(stack_t *, char *name);
+void jl_stack_remove_object(stack_t *stack, char *name);
